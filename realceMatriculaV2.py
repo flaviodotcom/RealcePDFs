@@ -1,22 +1,22 @@
 import os
 import fitz
 import openpyxl
-import tkinter as tk
+import customtkinter as ctk
 from tkinter import filedialog
 
 file_name = ""
 
 # Função para selecionar o arquivo Excel
 def select_excel_file():
-    file_path = filedialog.askopenfilename(title="Selecione o arquivo Excel")
-    excel_file_entry.delete(0, tk.END)
+    file_path = filedialog.askopenfilename(filetypes=[("Excel Files", "*.xlsx"), ("CSV Files", "*.csv"), ("Excel 97-2003 Files", "*.xls")])
+    excel_file_entry.delete(0, ctk.END)
     excel_file_entry.insert(0, file_path)
 
 # Função para selecionar o arquivo PDF
 def select_pdf_file():
-    file_path = filedialog.askopenfilename(title="Selecione o arquivo PDF")
+    file_path = filedialog.askopenfilename(filetypes=[("PDF Files", "*.pdf")])
     global file_name
-    pdf_file_entry.delete(0, tk.END)
+    pdf_file_entry.delete(0, ctk.END)
     pdf_file_entry.insert(0, file_path)
     file_name = os.path.basename(file_path)
 
@@ -62,40 +62,44 @@ def highlight_registration_numbers():
 
     pdf_file.save(output_filename)
 
+ctk.set_appearance_mode("dark")
+ctk.set_default_color_theme("dark-blue")
 
-# Cria a janela principal
-root = tk.Tk()
-root.title("Realçar números de matrícula em PDF")
+root = ctk.CTk()
+root.title("Destacar pdfs por matrícula")
+
+root.columnconfigure(0, weight=1)
+root.rowconfigure(1, weight=1)
 
 # Cria o frame para o arquivo Excel
-excel_frame = tk.Frame(root)
-excel_frame.pack(fill=tk.X, padx=10, pady=5)
+excel_frame = ctk.CTkFrame(root)
+excel_frame.grid(sticky=ctk.EW, padx=10, pady=10)
 
-excel_file_label = tk.Label(excel_frame, text="Arquivo Excel:")
-excel_file_label.pack(side=tk.LEFT)
+excel_file_label = ctk.CTkLabel(excel_frame, text="Arquivo Excel:")
+excel_file_label.grid(row=0, column=0)
 
-excel_file_entry = tk.Entry(excel_frame, width=50)
-excel_file_entry.pack(side=tk.LEFT, padx=5)
+excel_file_entry = ctk.CTkEntry(excel_frame, placeholder_text="Selecione o arquivo Excel", width=300)
+excel_file_entry.grid(row=0, column=1, padx=10)
 
-excel_file_button = tk.Button(excel_frame, text="Selecionar", command=select_excel_file)
-excel_file_button.pack(side=tk.LEFT)
+excel_file_button = ctk.CTkButton(excel_frame, text="Selecionar", command=select_excel_file)
+excel_file_button.grid(row=0, column=2, padx=5)
 
 # Cria o frame para o arquivo PDF
-pdf_frame = tk.Frame(root)
-pdf_frame.pack(fill=tk.X, padx=10, pady=5)
+pdf_frame = ctk.CTkFrame(root)
+pdf_frame.grid(sticky=ctk.EW, padx=10, pady=10)
 
-pdf_file_label = tk.Label(pdf_frame, text="Arquivo PDF:")
-pdf_file_label.pack(side=tk.LEFT)
+pdf_file_label = ctk.CTkLabel(pdf_frame, text="Arquivo PDF:  ")
+pdf_file_label.grid(row=0, column=0)
 
-pdf_file_entry = tk.Entry(pdf_frame, width=50)
-pdf_file_entry.pack(side=tk.LEFT, padx=5)
+pdf_file_entry = ctk.CTkEntry(pdf_frame, placeholder_text="Selecione o arquivo PDF", width=300)
+pdf_file_entry.grid(row=0, column=1, padx=10)
 
-pdf_file_button = tk.Button(pdf_frame, text="Selecionar", command=select_pdf_file)
-pdf_file_button.pack(side=tk.LEFT)
+pdf_file_button = ctk.CTkButton(pdf_frame, text="Selecionar", command=select_pdf_file)
+pdf_file_button.grid(row=0, column=2, padx=5)
 
 # Cria o botão para destacar os números de matrícula
-highlight_button = tk.Button(root, text="Realçar", command=highlight_registration_numbers)
-highlight_button.pack(pady=10)
+highlight_button = ctk.CTkButton(root, text="Destacar", command=highlight_registration_numbers)
+highlight_button.grid(row=2, column=0, sticky=ctk.EW, pady=5, padx=10)
 
 # Inicia a janela
 root.mainloop()
