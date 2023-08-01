@@ -27,7 +27,7 @@ def toggle_info_panel():
         info_frame.grid(row=3, column=0, columnspan=3, padx=10, pady=10, sticky=ctk.EW)
 
 # Função para destacar os números de matrícula no PDF
-def highlight_registration_numbers():
+def highlight_registration_numbers(destination_folder):
     global file_name
     # abre o arquivo PDF
     pdf_file_path = pdf_file_entry.get()
@@ -69,14 +69,7 @@ def highlight_registration_numbers():
                         # destaca o número da matrícula no PDF
                         highlight_annot = page.add_highlight_annot(highlight_rect)
 
-    # obtém o caminho de destino para salvar o arquivo editado
-    destination_folder = filedialog.askdirectory()
-    if not destination_folder:
-        # Se o usuário não escolher o destino, cria uma pasta "BENEFICIOS DESTACADOS"
-        destination_folder = os.path.join(os.path.dirname(__file__), "BENEFICIOS DESTACADOS")
-        os.makedirs(destination_folder, exist_ok=True)
-
-    # salva o PDF com os números de matrícula destacados
+    # Salva o PDF com os números de matrícula destacados
     output_filename = file_name
     file_number = 1
     while os.path.exists(os.path.join(destination_folder, output_filename)):
@@ -88,12 +81,23 @@ def highlight_registration_numbers():
 
     messagebox.showinfo("Concluído", f"O PDF editado foi salvo em:\n{output_file_path}")
 
+
+def save_to_default_folder():
+    destination_folder = os.path.join(os.path.dirname(__file__), "BENEFICIOS DESTACADOS")
+    os.makedirs(destination_folder, exist_ok=True)
+    highlight_registration_numbers(destination_folder)
+
+def save_to_user_selected_folder():
+    destination_folder = filedialog.askdirectory()
+    if not destination_folder:
+        return
+    highlight_registration_numbers(destination_folder)
+
 ctk.set_appearance_mode("dark")
 ctk.set_default_color_theme("dark-blue")
 
 root = ctk.CTk()
 root.title("Destacar pdfs por matrícula")
-# root.geometry("578x146")
 root.resizable(False, False)
 
 root.columnconfigure(0, weight=1)
@@ -125,9 +129,17 @@ pdf_file_entry.grid(row=0, column=1, padx=10)
 pdf_file_button = ctk.CTkButton(pdf_frame, text="Selecionar", command=select_pdf_file)
 pdf_file_button.grid(row=0, column=2, padx=5)
 
-# Cria o botão para destacar os números de matrícula
-highlight_button = ctk.CTkButton(root, text="Destacar", command=highlight_registration_numbers)
-highlight_button.grid(row=2, column=0, sticky=ctk.EW, pady=5, padx=10)
+# Frame para os botões de salvar e o botão "Como funciona?"
+save_and_info_frame = ctk.CTkFrame(root)
+save_and_info_frame.grid(row=2, column=0, columnspan=3, sticky=ctk.EW, pady=5, padx=10)
+
+# Botões de Salvar
+highlight_button = ctk.CTkButton(save_and_info_frame, text="Salvar", command=save_to_default_folder)
+highlight_button.grid(row=0, column=0, padx=5)
+
+# Cria os botões de destaque
+highlight_to_other_directory = ctk.CTkButton(save_and_info_frame, text="Salvar Como", command=save_to_user_selected_folder)
+highlight_to_other_directory.grid(row=0, column=1, padx=5)
 
 # Frame para o painel de informações
 info_frame = ctk.CTkFrame(root)
@@ -154,7 +166,7 @@ repetido no mesmo PDF.
 """
 
 info_label = ctk.CTkLabel(info_frame, text=info_text, wraplength=550)
-info_label.grid(row=0, column=0, padx=10, pady=10)
+info_label.grid(row=0, column=0, padx=10, pady=5)
 
 center_frame = ctk.CTkFrame(root)
 center_frame.grid(row=4, column=0, columnspan=3, sticky=ctk.EW)
