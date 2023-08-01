@@ -20,6 +20,12 @@ def select_pdf_file():
     pdf_file_entry.insert(0, file_path)
     file_name = os.path.basename(file_path)
 
+def toggle_info_panel():
+    if info_frame.grid_info():
+        info_frame.grid_remove()
+    else:
+        info_frame.grid(row=3, column=0, columnspan=3, padx=10, pady=10, sticky=ctk.EW)
+
 # Função para destacar os números de matrícula no PDF
 def highlight_registration_numbers():
     global file_name
@@ -67,6 +73,8 @@ ctk.set_default_color_theme("dark-blue")
 
 root = ctk.CTk()
 root.title("Destacar pdfs por matrícula")
+# root.geometry("578x146")
+root.resizable(False, False)
 
 root.columnconfigure(0, weight=1)
 root.rowconfigure(1, weight=1)
@@ -75,8 +83,8 @@ root.rowconfigure(1, weight=1)
 excel_frame = ctk.CTkFrame(root)
 excel_frame.grid(sticky=ctk.EW, padx=10, pady=10)
 
-excel_file_label = ctk.CTkLabel(excel_frame, text="Arquivo Excel:")
-excel_file_label.grid(row=0, column=0)
+excel_file_label = ctk.CTkLabel(excel_frame, text="  Arquivo Excel:")
+excel_file_label.grid(row=0, column=0, padx=5)
 
 excel_file_entry = ctk.CTkEntry(excel_frame, placeholder_text="Selecione o arquivo Excel", width=300)
 excel_file_entry.grid(row=0, column=1, padx=10)
@@ -88,8 +96,8 @@ excel_file_button.grid(row=0, column=2, padx=5)
 pdf_frame = ctk.CTkFrame(root)
 pdf_frame.grid(sticky=ctk.EW, padx=10, pady=10)
 
-pdf_file_label = ctk.CTkLabel(pdf_frame, text="Arquivo PDF:  ")
-pdf_file_label.grid(row=0, column=0)
+pdf_file_label = ctk.CTkLabel(pdf_frame, text="  Arquivo PDF:  ")
+pdf_file_label.grid(row=0, column=0, padx=5)
 
 pdf_file_entry = ctk.CTkEntry(pdf_frame, placeholder_text="Selecione o arquivo PDF", width=300)
 pdf_file_entry.grid(row=0, column=1, padx=10)
@@ -100,6 +108,40 @@ pdf_file_button.grid(row=0, column=2, padx=5)
 # Cria o botão para destacar os números de matrícula
 highlight_button = ctk.CTkButton(root, text="Destacar", command=highlight_registration_numbers)
 highlight_button.grid(row=2, column=0, sticky=ctk.EW, pady=5, padx=10)
+
+# Frame para o painel de informações
+info_frame = ctk.CTkFrame(root)
+info_frame.columnconfigure(0, weight=1)
+
+# Texto explicativo
+info_text = """
+Este programa permite que você destaque números de matrícula em um arquivo PDF
+usando informações de uma planilha do Excel. Para isso, siga os passos abaixo:
+
+1. Clique no botão 'Selecionar' ao lado de 'Arquivo Excel' para escolher o arquivo que
+   contém os números de matrícula. Certifique-se de que os números estão na coluna B.
+
+2. Clique no botão 'Selecionar' ao lado de 'Arquivo PDF' para escolher o arquivo PDF
+   onde os números de matrícula serão destacados.
+
+3. Depois de selecionar os arquivos, clique no botão 'Destacar' para iniciar o processo
+   de destaque dos números de matrícula no PDF.
+
+O PDF resultante com os números de matrícula destacados será salvo na mesma pasta do
+arquivo PDF original. O nome do arquivo terá o mesmo nome do PDF original, seguido de
+um número entre parênteses para evitar conflitos de nome em casos de processamento
+repetido no mesmo PDF.
+"""
+
+info_label = ctk.CTkLabel(info_frame, text=info_text, wraplength=550, )
+info_label.grid(row=0, column=0, padx=10, pady=10)
+
+center_frame = ctk.CTkFrame(root)
+center_frame.grid(row=4, column=0, columnspan=3, sticky=ctk.EW)
+
+# Botão de expansão para mostrar/ocultar o painel de informações
+info_expander = ctk.CTkButton(center_frame, text="Como funciona?", command=toggle_info_panel)
+info_expander.pack(pady=5)
 
 # Inicia a janela
 root.mainloop()
