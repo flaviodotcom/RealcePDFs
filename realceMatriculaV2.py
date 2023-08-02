@@ -4,164 +4,153 @@ import openpyxl
 import customtkinter as ctk
 from tkinter import filedialog, messagebox
 
-file_name = ""
+nome_arquivo = ""
 
-# Função para selecionar o arquivo Excel
-def select_excel_file():
-    file_path = filedialog.askopenfilename(filetypes=[("Excel Files", "*.xlsx"), ("CSV Files", "*.csv"), ("Excel 97-2003 Files", "*.xls")])
-    excel_file_entry.delete(0, ctk.END)
-    excel_file_entry.insert(0, file_path)
+def selecionar_arquivo_excel():
+    caminho_arquivo = filedialog.askopenfilename(filetypes=[("Arquivos Excel", "*.xlsx"), ("Arquivos CSV", "*.csv"), ("Arquivos Excel 97-2003", "*.xls")])
+    campo_arquivo_excel.delete(0, ctk.END)
+    campo_arquivo_excel.insert(0, caminho_arquivo)
 
-# Função para selecionar o arquivo PDF
-def select_pdf_file():
-    file_path = filedialog.askopenfilename(filetypes=[("PDF Files", "*.pdf")])
-    global file_name
-    pdf_file_entry.delete(0, ctk.END)
-    pdf_file_entry.insert(0, file_path)
-    file_name = os.path.basename(file_path)
+def selecionar_arquivo_pdf():
+    caminho_arquivo = filedialog.askopenfilename(filetypes=[("Arquivos PDF", "*.pdf")])
+    global nome_arquivo
+    campo_arquivo_pdf.delete(0, ctk.END)
+    campo_arquivo_pdf.insert(0, caminho_arquivo)
+    nome_arquivo = os.path.basename(caminho_arquivo)
 
-def toggle_info_panel():
-    if info_frame.grid_info():
-        info_frame.grid_remove()
+def alternar_painel_informacoes():
+    if painel_informacoes.grid_info():
+        painel_informacoes.grid_remove()
     else:
-        info_frame.grid(row=3, column=0, columnspan=3, padx=10, pady=10, sticky=ctk.EW)
+        painel_informacoes.grid(row=3, column=0, columnspan=3, padx=10, pady=10, sticky=ctk.EW)
 
-# Função para destacar os números de matrícula no PDF
-def highlight_registration_numbers():
-    global file_name
-    # abre o arquivo PDF
-    pdf_file_path = pdf_file_entry.get()
-    if not pdf_file_path:
+def realcar_numeros_matricula(pasta_destino):
+    global nome_arquivo
+    caminho_arquivo_pdf = campo_arquivo_pdf.get()
+    if not caminho_arquivo_pdf:
         ctk.messagebox.showerror("Erro", "Por favor, selecione o arquivo PDF.")
         return
 
-    pdf_file = fitz.open(pdf_file_path)
+    arquivo_pdf = fitz.open(caminho_arquivo_pdf)
 
-    # abre a planilha do Excel
-    excel_file_path = excel_file_entry.get()
-    if not excel_file_path:
+    caminho_arquivo_excel = campo_arquivo_excel.get()
+    if not caminho_arquivo_excel:
         ctk.messagebox.showerror("Erro", "Por favor, selecione o arquivo Excel.")
         return
 
-    excel_file = openpyxl.load_workbook(excel_file_path)
-    worksheet = excel_file.active
+    arquivo_excel = openpyxl.load_workbook(caminho_arquivo_excel)
+    planilha = arquivo_excel.active
 
-    # obtem o número de linhas na planilha
-    num_rows = worksheet.max_row
+    num_linhas = planilha.max_row
 
-    # percorre todas as linhas da planilha
-    for row in range(1, num_rows + 1):
-        # obtem o número da matrícula na coluna B da planilha
-        registration_number = worksheet.cell(row=row, column=2).value
-        registration_number = str(registration_number)  # converte para string
+    for linha in range(1, num_linhas + 1):
+        numero_matricula = planilha.cell(row=linha, column=2).value
+        numero_matricula = str(numero_matricula)
 
-        # percorre todas as páginas do PDF
-        for page in pdf_file:
-            # percorre todas as linhas do PDF
-            for line in page.get_text().splitlines():
-                # verifica se a linha contém o número da matrícula
-                if registration_number in line:
-                    # encontra o retângulo que contém o número da matrícula
-                    highlight = page.search_for(registration_number, hit_max=1)
-                    if highlight:
-                        highlight_rect = fitz.Rect(highlight[0][:4])
+        for pagina in arquivo_pdf:
+            for linha_texto in pagina.get_text().splitlines():
+                if numero_matricula in linha_texto:
+                    realce = pagina.search_for(numero_matricula, hit_max=1)
+                    if realce:
+                        retangulo_realce = fitz.Rect(realce[0][:4])
+                        anotacao_realce = pagina.add_highlight_annot(retangulo_realce)
 
-                        # destaca o número da matrícula no PDF
-                        highlight_annot = page.add_highlight_annot(highlight_rect)
+    nome_arquivo_saida = nome_arquivo
+    numero_arquivo = 1
+    while os.path.exists(os.path.join(pasta_destino, nome_arquivo_saida)):
+        nome_arquivo_saida = f"{nome_arquivo.strip('.pdf')}({numero_arquivo}).pdf"
+        numero_arquivo += 1
 
-    # obtém o caminho de destino para salvar o arquivo editado
-    destination_folder = filedialog.askdirectory()
-    if not destination_folder:
-        # Se o usuário não escolher o destino, cria uma pasta "BENEFICIOS DESTACADOS"
-        destination_folder = os.path.join(os.path.dirname(__file__), "BENEFICIOS DESTACADOS")
-        os.makedirs(destination_folder, exist_ok=True)
+    caminho_arquivo_saida = os.path.join(pasta_destino, nome_arquivo_saida)
+    arquivo_pdf.save(caminho_arquivo_saida)
 
-    # salva o PDF com os números de matrícula destacados
-    output_filename = file_name
-    file_number = 1
-    while os.path.exists(os.path.join(destination_folder, output_filename)):
-        output_filename = f"{file_name.strip('.pdf')}({file_number}).pdf"
-        file_number += 1
+    messagebox.showinfo("Concluído", f"O PDF editado foi salvo em:\n{caminho_arquivo_saida}")
 
-    output_file_path = os.path.join(destination_folder, output_filename)
-    pdf_file.save(output_file_path)
 
-    messagebox.showinfo("Concluído", f"O PDF editado foi salvo em:\n{output_file_path}")
+def salvar_para_pasta_padrao():
+    pasta_destino = os.path.join(os.path.dirname(__file__), "BENEFICIOS DESTACADOS")
+    os.makedirs(pasta_destino, exist_ok=True)
+    realcar_numeros_matricula(pasta_destino)
+
+def salvar_para_pasta_selecionada_pelo_usuario():
+    pasta_destino = filedialog.askdirectory()
+    if not pasta_destino:
+        return
+    realcar_numeros_matricula(pasta_destino)
 
 ctk.set_appearance_mode("dark")
 ctk.set_default_color_theme("dark-blue")
 
 root = ctk.CTk()
-root.title("Destacar pdfs por matrícula")
-# root.geometry("578x146")
+root.title("Destacar PDFs por matrícula")
 root.resizable(False, False)
 
 root.columnconfigure(0, weight=1)
 root.rowconfigure(1, weight=1)
 
-# Cria o frame para o arquivo Excel
-excel_frame = ctk.CTkFrame(root)
-excel_frame.grid(sticky=ctk.EW, padx=10, pady=10)
+frame_excel = ctk.CTkFrame(root)
+frame_excel.grid(sticky=ctk.EW, padx=10, pady=10)
 
-excel_file_label = ctk.CTkLabel(excel_frame, text="  Arquivo Excel:")
-excel_file_label.grid(row=0, column=0, padx=5)
+rotulo_arquivo_excel = ctk.CTkLabel(frame_excel, text="  Arquivo Excel:")
+rotulo_arquivo_excel.grid(row=0, column=0, padx=5)
 
-excel_file_entry = ctk.CTkEntry(excel_frame, placeholder_text="Selecione o arquivo Excel", width=300)
-excel_file_entry.grid(row=0, column=1, padx=10)
+campo_arquivo_excel = ctk.CTkEntry(frame_excel, placeholder_text="Selecione o arquivo Excel", width=300)
+campo_arquivo_excel.grid(row=0, column=1, padx=10)
 
-excel_file_button = ctk.CTkButton(excel_frame, text="Selecionar", command=select_excel_file)
-excel_file_button.grid(row=0, column=2, padx=5)
+botao_selecionar_arquivo_excel = ctk.CTkButton(frame_excel, text="Selecionar", command=selecionar_arquivo_excel)
+botao_selecionar_arquivo_excel.grid(row=0, column=2, padx=5)
 
-# Cria o frame para o arquivo PDF
-pdf_frame = ctk.CTkFrame(root)
-pdf_frame.grid(sticky=ctk.EW, padx=10, pady=10)
+frame_pdf = ctk.CTkFrame(root)
+frame_pdf.grid(sticky=ctk.EW, padx=10, pady=10)
 
-pdf_file_label = ctk.CTkLabel(pdf_frame, text="  Arquivo PDF:  ")
-pdf_file_label.grid(row=0, column=0, padx=5)
+rotulo_arquivo_pdf = ctk.CTkLabel(frame_pdf, text="  Arquivo PDF:  ")
+rotulo_arquivo_pdf.grid(row=0, column=0, padx=5)
 
-pdf_file_entry = ctk.CTkEntry(pdf_frame, placeholder_text="Selecione o arquivo PDF", width=300)
-pdf_file_entry.grid(row=0, column=1, padx=10)
+campo_arquivo_pdf = ctk.CTkEntry(frame_pdf, placeholder_text="Selecione o arquivo PDF", width=300)
+campo_arquivo_pdf.grid(row=0, column=1, padx=10)
 
-pdf_file_button = ctk.CTkButton(pdf_frame, text="Selecionar", command=select_pdf_file)
-pdf_file_button.grid(row=0, column=2, padx=5)
+botao_selecionar_arquivo_pdf = ctk.CTkButton(frame_pdf, text="Selecionar", command=selecionar_arquivo_pdf)
+botao_selecionar_arquivo_pdf.grid(row=0, column=2, padx=5)
 
-# Cria o botão para destacar os números de matrícula
-highlight_button = ctk.CTkButton(root, text="Destacar", command=highlight_registration_numbers)
-highlight_button.grid(row=2, column=0, sticky=ctk.EW, pady=5, padx=10)
+frame_salvar_e_info = ctk.CTkFrame(root)
+frame_salvar_e_info.grid(row=2, column=0, columnspan=3, sticky=ctk.EW, pady=5, padx=10)
 
-# Frame para o painel de informações
-info_frame = ctk.CTkFrame(root)
-info_frame.columnconfigure(0, weight=1)
+botao_destacar = ctk.CTkButton(frame_salvar_e_info, text="Salvar", command=salvar_para_pasta_padrao)
+botao_destacar.grid(row=0, column=0, padx=5, sticky=ctk.EW)
 
-# Texto explicativo
-info_text = """
-Este programa permite que você destaque números de matrícula em um arquivo PDF
-usando informações de uma planilha do Excel. Para isso, siga os passos abaixo:
+botao_destacar_em_outra_pasta = ctk.CTkButton(frame_salvar_e_info, text="Salvar Como", command=salvar_para_pasta_selecionada_pelo_usuario)
+botao_destacar_em_outra_pasta.grid(row=0, column=1, padx=5, sticky=ctk.EW)
 
-1. Clique no botão 'Selecionar' ao lado de 'Arquivo Excel' para escolher o arquivo que
-   contém os números de matrícula. Certifique-se de que os números estão na coluna B.
+frame_salvar_e_info.columnconfigure(0, weight=1)
+frame_salvar_e_info.columnconfigure(1, weight=1)
 
-2. Clique no botão 'Selecionar' ao lado de 'Arquivo PDF' para escolher o arquivo PDF
-   onde os números de matrícula serão destacados.
+painel_informacoes = ctk.CTkFrame(root)
+painel_informacoes.columnconfigure(0, weight=1)
 
-3. Depois de selecionar os arquivos, clique no botão 'Destacar' para iniciar o processo
-   de destaque dos números de matrícula no PDF.
+texto_informacoes = """
+Este programa permite destacar a matrícula dos funcionários em um arquivo PDF usando informações de uma planilha do Excel. Principalmente usado para realçar os benefícios de Seguro de Vida, Plano Odontológico, Vale Transporte, Vale Alimentação e Vale Refeição.
 
-O PDF resultante com os números de matrícula destacados será salvo na mesma pasta do
-arquivo PDF original. O nome do arquivo terá o mesmo nome do PDF original, seguido de
-um número entre parênteses para evitar conflitos de nome em casos de processamento
-repetido no mesmo PDF.
+Orientações:
+
+1. Clique no botão 'Selecionar' para escolher o arquivo Excel e PDF, respectivamente.
+
+2. Certifique-se de que as matrículas estejam na coluna B da planilha. O programa percorre pela segunda coluna (coluna B), garanta que nesse coluna não existam outras informações.
+
+3. Depois de selecionar os arquivos, clique no botão 'Salvar' para salvar o PDF editado no mesmo diretório em que o programa está localizado, dentro de uma pasta que será criada, chamada 'BENEFICIOS DESTACADOS'. Ou clique no botão 'Salvar Como', para salvar o PDF editado no caminho que preferir.
 """
 
-info_label = ctk.CTkLabel(info_frame, text=info_text, wraplength=550)
-info_label.grid(row=0, column=0, padx=10, pady=10)
+tamanho_da_fonte = 14
+fonte_personalizada = ("Arial", tamanho_da_fonte)
 
-center_frame = ctk.CTkFrame(root)
-center_frame.grid(row=4, column=0, columnspan=3, sticky=ctk.EW)
+rotulo_informacoes = ctk.CTkLabel(painel_informacoes, text=texto_informacoes, wraplength=520, justify="left", font=fonte_personalizada)
+rotulo_informacoes.grid(row=0, column=0, padx=10, pady=5)
+rotulo_informacoes.configure(text_color="white")
 
-# Botão de expansão para mostrar/ocultar o painel de informações
-info_expander = ctk.CTkButton(center_frame, text="Como funciona?", command=toggle_info_panel)
-info_expander.pack(pady=5)
+frame_central = ctk.CTkFrame(root)
+frame_central.grid(row=4, column=0, columnspan=3, sticky=ctk.EW)
+frame_central.configure(fg_color="transparent")
 
-# Inicia a janela
+botao_expansor_informacoes = ctk.CTkButton(frame_central, text="Como funciona?", command=alternar_painel_informacoes)
+botao_expansor_informacoes.pack(pady=5)
+
 root.mainloop()
