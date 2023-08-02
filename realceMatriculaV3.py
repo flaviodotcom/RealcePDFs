@@ -97,7 +97,7 @@ ctk.set_appearance_mode("dark")
 ctk.set_default_color_theme("dark-blue")
 
 root = ctk.CTk()
-root.title("Destacar pdfs por matrícula")
+root.title("Destacar PDFs por matrícula")
 root.resizable(False, False)
 
 root.columnconfigure(0, weight=1)
@@ -135,11 +135,15 @@ save_and_info_frame.grid(row=2, column=0, columnspan=3, sticky=ctk.EW, pady=5, p
 
 # Botões de Salvar
 highlight_button = ctk.CTkButton(save_and_info_frame, text="Salvar", command=save_to_default_folder)
-highlight_button.grid(row=0, column=0, padx=5)
+highlight_button.grid(row=0, column=0, padx=5, sticky=ctk.EW)
 
 # Cria os botões de destaque
 highlight_to_other_directory = ctk.CTkButton(save_and_info_frame, text="Salvar Como", command=save_to_user_selected_folder)
-highlight_to_other_directory.grid(row=0, column=1, padx=5)
+highlight_to_other_directory.grid(row=0, column=1, padx=5, sticky=ctk.EW)
+
+# Setando o tamanho igual para os botões de Salvar e Salvar Como
+save_and_info_frame.columnconfigure(0, weight=1)
+save_and_info_frame.columnconfigure(1, weight=1)
 
 # Frame para o painel de informações
 info_frame = ctk.CTkFrame(root)
@@ -147,29 +151,27 @@ info_frame.columnconfigure(0, weight=1)
 
 # Texto explicativo
 info_text = """
-Este programa permite que você destaque números de matrícula em um arquivo PDF
-usando informações de uma planilha do Excel. Para isso, siga os passos abaixo:
+Este programa permite destacar a matrícula dos funcionários em um arquivo PDF usando informações de uma planilha do Excel. Principalmente usado para realçar os benefícios de Seguro de Vida, Plano Odontológico, Vale Transporte, Vale Alimentação e Vale Refeição.
 
-1. Clique no botão 'Selecionar' ao lado de 'Arquivo Excel' para escolher o arquivo que
-   contém os números de matrícula. Certifique-se de que os números estão na coluna B.
+Orientações:
 
-2. Clique no botão 'Selecionar' ao lado de 'Arquivo PDF' para escolher o arquivo PDF
-   onde os números de matrícula serão destacados.
+1. Clique no botão 'Selecionar' para escolher o arquivo Excel e PDF, respectivamente.
 
-3. Depois de selecionar os arquivos, clique no botão 'Destacar' para iniciar o processo
-   de destaque dos números de matrícula no PDF.
+2. Certifique-se de que as matrículas estejam na coluna B da planilha. O programa percorre pela segunda coluna (coluna B), garanta que nesse coluna não existam outras informações.
 
-O PDF resultante com os números de matrícula destacados será salvo na mesma pasta do
-arquivo PDF original. O nome do arquivo terá o mesmo nome do PDF original, seguido de
-um número entre parênteses para evitar conflitos de nome em casos de processamento
-repetido no mesmo PDF.
+3. Depois de selecionar os arquivos, clique no botão 'Salvar' para salvar o PDF editado no mesmo diretório em que o programa está localizado, dentro de uma pasta que será criada, chamada 'BENEFICIOS DESTACADOS'. Ou clique no botão 'Salvar Como', para salvar o PDF editado no caminho que preferir.
 """
 
-info_label = ctk.CTkLabel(info_frame, text=info_text, wraplength=550)
+tamanho_da_fonte = 14  # Substitua com o tamanho da fonte desejado (por exemplo, 12, 16, etc.)
+fonte_personalizada = ("Arial", tamanho_da_fonte)
+
+info_label = ctk.CTkLabel(info_frame, text=info_text, wraplength=520, justify="left", font=fonte_personalizada)
 info_label.grid(row=0, column=0, padx=10, pady=5)
+info_label.configure(text_color="white")
 
 center_frame = ctk.CTkFrame(root)
 center_frame.grid(row=4, column=0, columnspan=3, sticky=ctk.EW)
+center_frame.configure(fg_color="transparent")
 
 # Botão de expansão para mostrar/ocultar o painel de informações
 info_expander = ctk.CTkButton(center_frame, text="Como funciona?", command=toggle_info_panel)
