@@ -43,9 +43,16 @@ def realcar_numeros_matricula(pasta_destino):
 
     num_linhas = planilha.max_row
 
+    matriculas_nao_encontradas = []
+
     for linha in range(1, num_linhas + 1):
         numero_matricula = planilha.cell(row=linha, column=2).value
         numero_matricula = str(numero_matricula)
+
+        nome_matricula = planilha.cell(row=linha, column=3).value
+        nome_matricula = str(nome_matricula)
+
+        encontrou_matricula = False
 
         for pagina in arquivo_pdf:
             for linha_texto in pagina.get_text().splitlines():
@@ -54,6 +61,11 @@ def realcar_numeros_matricula(pasta_destino):
                     if realce:
                         retangulo_realce = fitz.Rect(realce[0][:4])
                         anotacao_realce = pagina.add_highlight_annot(retangulo_realce)
+                        encontrou_matricula = True
+                        break
+        
+        if not encontrou_matricula and nome_matricula and numero_matricula != 'None':
+            matriculas_nao_encontradas.append(numero_matricula + " - " + nome_matricula)
 
     nome_arquivo_saida = nome_arquivo
     numero_arquivo = 1
@@ -64,7 +76,22 @@ def realcar_numeros_matricula(pasta_destino):
     caminho_arquivo_saida = os.path.join(pasta_destino, nome_arquivo_saida)
     arquivo_pdf.save(caminho_arquivo_saida)
 
+    if matriculas_nao_encontradas:
+        nome_arquivo_txt = "Matrículas não encontradas.txt"
+        numero_arquivo_txt = 1
+
+        while os.path.exists(os.path.join(pasta_destino, nome_arquivo_txt)):
+            nome_arquivo_txt = f"Matrículas não encontradas({numero_arquivo_txt}).txt"
+            numero_arquivo_txt += 1
+
+        caminho_arquivo_txt = os.path.join(pasta_destino, nome_arquivo_txt)
+        
+        with open(caminho_arquivo_txt, "w") as arquivo_txt:
+            for matricula in matriculas_nao_encontradas:
+                arquivo_txt.write(matricula + "\n")
+
     messagebox.showinfo("Concluído", f"O PDF editado foi salvo em:\n{caminho_arquivo_saida}")
+    messagebox.showwarning("Matrículas não encontradas", f"Não foi possível encontrar algumas matrículas no arquivo PDF selecionado.\nFoi gerado um arquivo de texto que contém as matrículas não encontradas, salvo em:\n{caminho_arquivo_txt}")
 
 
 def salvar_para_pasta_padrao():
@@ -136,7 +163,9 @@ Orientações:
 
 2. Certifique-se de que as matrículas estejam na coluna B da planilha. O programa percorre pela segunda coluna (coluna B), garanta que nesse coluna não existam outras informações.
 
-3. Depois de selecionar os arquivos, clique no botão 'Salvar' para salvar o PDF editado no mesmo diretório em que o programa está localizado, dentro de uma pasta que será criada, chamada 'BENEFICIOS DESTACADOS'. Ou clique no botão 'Salvar Como', para salvar o PDF editado no caminho que preferir.
+3. O programa cria um arquivo de texto, que aponta quais foram as matrículas não encontradas junto com o nome do colaborador. Para que essa funcionalidade ocorra como esperado, mantenha o nome dos colaboradores na terceira coluna (coluna C) da planilha. O arquivo de texto será salvo no mesmo diretório do PDF editado.
+
+4. Depois de selecionar os arquivos, clique no botão 'Salvar' para salvar o PDF editado no mesmo diretório em que o programa está localizado, dentro de uma pasta que será criada, chamada 'BENEFICIOS DESTACADOS'. Ou clique no botão 'Salvar Como', para salvar o PDF editado no caminho que preferir.
 """
 
 tamanho_da_fonte = 14
