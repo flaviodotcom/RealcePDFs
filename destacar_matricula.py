@@ -1,10 +1,15 @@
 import os
 import fitz
 import openpyxl
+import sys
 import customtkinter as ctk
 from tkinter import filedialog, messagebox
 
 nome_arquivo = ""
+
+def resource_path(relative_path):
+    base_path = getattr(sys, '_MEIPASS', os.path.dirname(os.path.abspath(__file__)))
+    return os.path.join(base_path, relative_path)
 
 def selecionar_arquivo_excel():
     caminho_arquivo = filedialog.askopenfilename(filetypes=[("Arquivos Excel", "*.xlsx"), ("Arquivos CSV", "*.csv"), ("Arquivos Excel 97-2003", "*.xls")])
@@ -139,7 +144,7 @@ ctk.set_default_color_theme("dark-blue")
 
 root = ctk.CTk()
 root.title("Destacar PDFs por matrícula")
-root.iconbitmap("assets/Sesamo.ico")
+root.iconbitmap(resource_path('assets\\Sesamo.ico'))
 root.resizable(False, False)
 
 root.columnconfigure(0, weight=1)
