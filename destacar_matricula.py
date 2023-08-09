@@ -85,7 +85,8 @@ def realcar_numeros_matricula(pasta_destino):
                 arquivo_txt.write(matricula + "\n")
 
     messagebox.showinfo("Concluído", f"O PDF editado foi salvo em:\n{caminho_arquivo_saida}")
-    messagebox.showwarning("Matrículas não encontradas", f"Não foi possível encontrar algumas matrículas no arquivo PDF selecionado.\nFoi gerado um arquivo de texto que contém as matrículas não encontradas, salvo em:\n{caminho_arquivo_txt}")
+
+    messagebox.showwarning("Matrículas não encontradas", f"Não foi possível encontrar algumas matrículas no arquivo PDF selecionado.\n\nFoi gerado um arquivo de texto que contém as matrículas não encontradas, salvo em:\n{caminho_arquivo_txt}")
 
 
 def salvar_para_pasta_padrao():
@@ -111,6 +112,23 @@ def salvar_para_pasta_padrao():
     realcar_numeros_matricula(pasta_destino)
 
 def salvar_para_pasta_selecionada_pelo_usuario():
+    caminho_arquivo_excel = campo_arquivo_excel.get()
+    caminho_arquivo_pdf = campo_arquivo_pdf.get()
+
+    mensagem_erro = (
+        "Por favor, selecione o arquivo Excel e o arquivo PDF."
+        if not caminho_arquivo_excel and not caminho_arquivo_pdf
+        else "Por favor, selecione o arquivo PDF."
+        if not caminho_arquivo_pdf
+        else "Por favor, selecione o arquivo Excel."
+        if not caminho_arquivo_excel
+        else None
+    )
+
+    if mensagem_erro:
+        messagebox.showerror("Erro", mensagem_erro)
+        return
+
     pasta_destino = filedialog.askdirectory()
     if not pasta_destino:
         return
@@ -121,6 +139,7 @@ ctk.set_default_color_theme("dark-blue")
 
 root = ctk.CTk()
 root.title("Destacar PDFs por matrícula")
+root.iconbitmap("assets/Sesamo.ico")
 root.resizable(False, False)
 
 root.columnconfigure(0, weight=1)
