@@ -27,16 +27,10 @@ def alternar_painel_informacoes():
 def realcar_numeros_matricula(pasta_destino):
     global nome_arquivo
     caminho_arquivo_pdf = campo_arquivo_pdf.get()
-    if not caminho_arquivo_pdf:
-        ctk.messagebox.showerror("Erro", "Por favor, selecione o arquivo PDF.")
-        return
 
     arquivo_pdf = fitz.open(caminho_arquivo_pdf)
 
     caminho_arquivo_excel = campo_arquivo_excel.get()
-    if not caminho_arquivo_excel:
-        ctk.messagebox.showerror("Erro", "Por favor, selecione o arquivo Excel.")
-        return
 
     arquivo_excel = openpyxl.load_workbook(caminho_arquivo_excel)
     planilha = arquivo_excel.active
@@ -95,6 +89,23 @@ def realcar_numeros_matricula(pasta_destino):
 
 
 def salvar_para_pasta_padrao():
+    caminho_arquivo_excel = campo_arquivo_excel.get()
+    caminho_arquivo_pdf = campo_arquivo_pdf.get()
+
+    mensagem_erro = (
+        "Por favor, selecione o arquivo Excel e o arquivo PDF."
+        if not caminho_arquivo_excel and not caminho_arquivo_pdf
+        else "Por favor, selecione o arquivo PDF."
+        if not caminho_arquivo_pdf
+        else "Por favor, selecione o arquivo Excel."
+        if not caminho_arquivo_excel
+        else None
+    )
+
+    if mensagem_erro:
+        messagebox.showerror("Erro", mensagem_erro)
+        return
+
     pasta_destino = os.path.join(os.path.dirname(__file__), "BENEFICIOS DESTACADOS")
     os.makedirs(pasta_destino, exist_ok=True)
     realcar_numeros_matricula(pasta_destino)
