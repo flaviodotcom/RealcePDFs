@@ -112,7 +112,7 @@ def salvar_para_pasta_padrao():
         messagebox.showerror("Erro", mensagem_erro)
         return
 
-    pasta_destino = os.path.join(os.path.dirname(__file__), "BENEFICIOS DESTACADOS")
+    pasta_destino = os.path.join(os.path.expanduser('~'), "Desktop", "BENEFICIOS DESTACADOS")
     os.makedirs(pasta_destino, exist_ok=True)
     realcar_numeros_matricula(pasta_destino)
 
@@ -144,7 +144,7 @@ ctk.set_default_color_theme("dark-blue")
 
 root = ctk.CTk()
 root.title("Destacar PDFs por matrícula")
-root.iconbitmap(resource_path('assets\\Sesamo.ico'))
+root.iconbitmap(resource_path('assets\\Cookie-Monster.ico'))
 root.resizable(False, False)
 
 root.columnconfigure(0, weight=1)
@@ -200,7 +200,7 @@ Orientações:
 
 3. O programa cria um arquivo de texto, que aponta quais foram as matrículas não encontradas junto com o nome do colaborador. Para que essa funcionalidade ocorra como esperado, mantenha o nome dos colaboradores na terceira coluna (coluna C) da planilha. O arquivo de texto será salvo no mesmo diretório do PDF editado.
 
-4. Depois de selecionar os arquivos, clique no botão 'Salvar' para salvar o PDF editado no mesmo diretório em que o programa está localizado, dentro de uma pasta que será criada, chamada 'BENEFICIOS DESTACADOS'. Ou clique no botão 'Salvar Como', para salvar o PDF editado no caminho que preferir.
+4. Após selecionar os arquivos, clique no botão 'Salvar' para guardar o PDF editado na Área de Trabalho (Desktop), dentro da pasta 'BENEFÍCIOS DESTACADOS'. Alternativamente, clique no botão 'Salvar Como' para escolher o local de armazenamento do PDF editado que preferir.
 """
 
 tamanho_da_fonte = 13
