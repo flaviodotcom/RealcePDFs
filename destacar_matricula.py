@@ -7,14 +7,23 @@ from tkinter import filedialog, messagebox
 
 nome_arquivo = ""
 
+
 def resource_path(relative_path):
-    base_path = getattr(sys, '_MEIPASS', os.path.dirname(os.path.abspath(__file__)))
+    base_path = getattr(sys, "_MEIPASS", os.path.dirname(os.path.abspath(__file__)))
     return os.path.join(base_path, relative_path)
 
+
 def selecionar_arquivo_excel():
-    caminho_arquivo = filedialog.askopenfilename(filetypes=[("Arquivos Excel", "*.xlsx"), ("Arquivos CSV", "*.csv"), ("Arquivos Excel 97-2003", "*.xls")])
+    caminho_arquivo = filedialog.askopenfilename(
+        filetypes=[
+            ("Arquivos Excel", "*.xlsx"),
+            ("Arquivos CSV", "*.csv"),
+            ("Arquivos Excel 97-2003", "*.xls"),
+        ]
+    )
     campo_arquivo_excel.delete(0, ctk.END)
     campo_arquivo_excel.insert(0, caminho_arquivo)
+
 
 def selecionar_arquivo_pdf():
     caminho_arquivo = filedialog.askopenfilename(filetypes=[("Arquivos PDF", "*.pdf")])
@@ -23,11 +32,15 @@ def selecionar_arquivo_pdf():
     campo_arquivo_pdf.insert(0, caminho_arquivo)
     nome_arquivo = os.path.basename(caminho_arquivo)
 
+
 def alternar_painel_informacoes():
     if painel_informacoes.grid_info():
         painel_informacoes.grid_remove()
     else:
-        painel_informacoes.grid(row=3, column=0, columnspan=3, padx=10, pady=10, sticky=ctk.EW)
+        painel_informacoes.grid(
+            row=3, column=0, columnspan=3, padx=10, pady=10, sticky=ctk.EW
+        )
+
 
 def realcar_numeros_matricula(pasta_destino):
     global nome_arquivo, caminho_arquivo_txt
@@ -49,7 +62,7 @@ def realcar_numeros_matricula(pasta_destino):
         numero_matricula = str(numero_matricula)
 
         nome_matricula = planilha.cell(row=linha, column=3).value
-        nome_matricula = str(nome_matricula)
+        nome_matricula = str(nome_matricula).upper()
 
         encontrou_matricula = False
 
@@ -62,8 +75,8 @@ def realcar_numeros_matricula(pasta_destino):
                         anotacao_realce = pagina.add_highlight_annot(retangulo_realce)
                         encontrou_matricula = True
                         break
-        
-        if not encontrou_matricula and nome_matricula and numero_matricula != 'None':
+
+        if not encontrou_matricula and nome_matricula and numero_matricula != "None":
             matriculas_nao_encontradas.append(numero_matricula + " - " + nome_matricula)
 
     nome_arquivo_saida = nome_arquivo
@@ -84,54 +97,62 @@ def realcar_numeros_matricula(pasta_destino):
             numero_arquivo_txt += 1
 
         caminho_arquivo_txt = os.path.join(pasta_destino, nome_arquivo_txt)
-        
+
         with open(caminho_arquivo_txt, "w") as arquivo_txt:
             for matricula in matriculas_nao_encontradas:
                 arquivo_txt.write(matricula + "\n")
 
-    messagebox.showinfo("Concluído", f"O PDF editado foi salvo em:\n{caminho_arquivo_saida}")
+    messagebox.showinfo(
+        "Concluído", f"O PDF editado foi salvo em:\n{caminho_arquivo_saida}"
+    )
 
-    messagebox.showwarning("Matrículas não encontradas", f"Não foi possível encontrar algumas matrículas no arquivo PDF selecionado.\n\nFoi gerado um arquivo de texto que contém as matrículas não encontradas, salvo em:\n{caminho_arquivo_txt}")
+    messagebox.showwarning(
+        "Matrículas não encontradas",
+        f"Não foi possível encontrar algumas matrículas no arquivo PDF selecionado.\n\nFoi gerado um arquivo de texto que contém as matrículas não encontradas, salvo em:\n{caminho_arquivo_txt}",
+    )
+
+
+def tratar_erro(caminho_arquivo_excel, caminho_arquivo_pdf):
+    try:
+        mensagem_erro = (
+            "Por favor, selecione o arquivo Excel e o arquivo PDF."
+            if not caminho_arquivo_excel and not caminho_arquivo_pdf
+            else "Por favor, selecione o arquivo PDF."
+            if not caminho_arquivo_pdf
+            else "Por favor, selecione o arquivo Excel."
+            if not caminho_arquivo_excel
+            else None
+        )
+
+        if mensagem_erro:
+            messagebox.showerror("Erro", mensagem_erro)
+            return True
+        return False
+    
+    except Exception as e:
+        messagebox.showerror("Erro", f"Ocorreu um erro: {str(e)}")
+        return True
 
 
 def salvar_para_pasta_padrao():
     caminho_arquivo_excel = campo_arquivo_excel.get()
     caminho_arquivo_pdf = campo_arquivo_pdf.get()
 
-    mensagem_erro = (
-        "Por favor, selecione o arquivo Excel e o arquivo PDF."
-        if not caminho_arquivo_excel and not caminho_arquivo_pdf
-        else "Por favor, selecione o arquivo PDF."
-        if not caminho_arquivo_pdf
-        else "Por favor, selecione o arquivo Excel."
-        if not caminho_arquivo_excel
-        else None
-    )
-
-    if mensagem_erro:
-        messagebox.showerror("Erro", mensagem_erro)
+    if tratar_erro(caminho_arquivo_excel, caminho_arquivo_pdf):
         return
 
-    pasta_destino = os.path.join(os.path.expanduser('~'), "Desktop", "BENEFICIOS DESTACADOS")
+    pasta_destino = os.path.join(
+        os.path.expanduser("~"), "Desktop", "BENEFICIOS DESTACADOS"
+    )
     os.makedirs(pasta_destino, exist_ok=True)
     realcar_numeros_matricula(pasta_destino)
+
 
 def salvar_para_pasta_selecionada_pelo_usuario():
     caminho_arquivo_excel = campo_arquivo_excel.get()
     caminho_arquivo_pdf = campo_arquivo_pdf.get()
 
-    mensagem_erro = (
-        "Por favor, selecione o arquivo Excel e o arquivo PDF."
-        if not caminho_arquivo_excel and not caminho_arquivo_pdf
-        else "Por favor, selecione o arquivo PDF."
-        if not caminho_arquivo_pdf
-        else "Por favor, selecione o arquivo Excel."
-        if not caminho_arquivo_excel
-        else None
-    )
-
-    if mensagem_erro:
-        messagebox.showerror("Erro", mensagem_erro)
+    if tratar_erro(caminho_arquivo_excel, caminho_arquivo_pdf):
         return
 
     pasta_destino = filedialog.askdirectory()
@@ -139,12 +160,13 @@ def salvar_para_pasta_selecionada_pelo_usuario():
         return
     realcar_numeros_matricula(pasta_destino)
 
+
 ctk.set_appearance_mode("dark")
 ctk.set_default_color_theme("dark-blue")
 
 root = ctk.CTk()
 root.title(" Destacar PDFs por matrícula")
-root.iconbitmap(resource_path('assets\\Cookie-Monster.ico'))
+root.iconbitmap(resource_path("assets\\Cookie-Monster.ico"))
 root.resizable(False, False)
 
 root.columnconfigure(0, weight=1)
@@ -156,10 +178,14 @@ frame_excel.grid(sticky=ctk.EW, padx=10, pady=10)
 rotulo_arquivo_excel = ctk.CTkLabel(frame_excel, text="  Arquivo Excel:")
 rotulo_arquivo_excel.grid(row=0, column=0, padx=5)
 
-campo_arquivo_excel = ctk.CTkEntry(frame_excel, placeholder_text="Selecione o arquivo Excel", width=300)
+campo_arquivo_excel = ctk.CTkEntry(
+    frame_excel, placeholder_text="Selecione o arquivo Excel", width=300
+)
 campo_arquivo_excel.grid(row=0, column=1, padx=10)
 
-botao_selecionar_arquivo_excel = ctk.CTkButton(frame_excel, text="Selecionar", command=selecionar_arquivo_excel)
+botao_selecionar_arquivo_excel = ctk.CTkButton(
+    frame_excel, text="Selecionar", command=selecionar_arquivo_excel
+)
 botao_selecionar_arquivo_excel.grid(row=0, column=2, padx=5)
 
 frame_pdf = ctk.CTkFrame(root)
@@ -168,19 +194,29 @@ frame_pdf.grid(sticky=ctk.EW, padx=10, pady=10)
 rotulo_arquivo_pdf = ctk.CTkLabel(frame_pdf, text="  Arquivo PDF:  ")
 rotulo_arquivo_pdf.grid(row=0, column=0, padx=5)
 
-campo_arquivo_pdf = ctk.CTkEntry(frame_pdf, placeholder_text="Selecione o arquivo PDF", width=300)
+campo_arquivo_pdf = ctk.CTkEntry(
+    frame_pdf, placeholder_text="Selecione o arquivo PDF", width=300
+)
 campo_arquivo_pdf.grid(row=0, column=1, padx=10)
 
-botao_selecionar_arquivo_pdf = ctk.CTkButton(frame_pdf, text="Selecionar", command=selecionar_arquivo_pdf)
+botao_selecionar_arquivo_pdf = ctk.CTkButton(
+    frame_pdf, text="Selecionar", command=selecionar_arquivo_pdf
+)
 botao_selecionar_arquivo_pdf.grid(row=0, column=2, padx=5)
 
 frame_salvar_e_info = ctk.CTkFrame(root)
 frame_salvar_e_info.grid(row=2, column=0, columnspan=3, sticky=ctk.EW, pady=5, padx=10)
 
-botao_destacar = ctk.CTkButton(frame_salvar_e_info, text="Salvar", command=salvar_para_pasta_padrao)
+botao_destacar = ctk.CTkButton(
+    frame_salvar_e_info, text="Salvar", command=salvar_para_pasta_padrao
+)
 botao_destacar.grid(row=0, column=0, padx=5, sticky=ctk.EW)
 
-botao_destacar_em_outra_pasta = ctk.CTkButton(frame_salvar_e_info, text="Salvar Como", command=salvar_para_pasta_selecionada_pelo_usuario)
+botao_destacar_em_outra_pasta = ctk.CTkButton(
+    frame_salvar_e_info,
+    text="Salvar Como",
+    command=salvar_para_pasta_selecionada_pelo_usuario,
+)
 botao_destacar_em_outra_pasta.grid(row=0, column=1, padx=5, sticky=ctk.EW)
 
 frame_salvar_e_info.columnconfigure(0, weight=1)
@@ -192,7 +228,7 @@ painel_informacoes.columnconfigure(0, weight=1)
 texto_informacoes = """
 Este programa permite destacar a matrícula dos funcionários em um arquivo PDF usando informações de uma planilha do Excel. Principalmente usado para realçar os benefícios de Seguro de Vida, Plano Odontológico, Vale Transporte, Vale Alimentação e Vale Refeição.
 
-Orientações:
+                                                   Orientações:
 
 1. Clique no botão 'Selecionar' para escolher o arquivo Excel e PDF, respectivamente.
 
@@ -203,10 +239,16 @@ Orientações:
 4. Após selecionar os arquivos, clique no botão 'Salvar' para guardar o PDF editado na Área de Trabalho (Desktop), dentro da pasta 'BENEFÍCIOS DESTACADOS'. Alternativamente, clique no botão 'Salvar Como' para escolher o local de armazenamento do PDF editado que preferir.
 """
 
-tamanho_da_fonte = 13
-fonte_personalizada = ("Arial", tamanho_da_fonte)
+tamanho_da_fonte = 14
+fonte_personalizada = ("Helvetica", tamanho_da_fonte)
 
-rotulo_informacoes = ctk.CTkLabel(painel_informacoes, text=texto_informacoes, wraplength=520, justify="left", font=fonte_personalizada)
+rotulo_informacoes = ctk.CTkLabel(
+    painel_informacoes,
+    text=texto_informacoes,
+    wraplength=505,
+    justify="left",
+    font=fonte_personalizada,
+)
 rotulo_informacoes.grid(row=0, column=0, padx=10, pady=5)
 rotulo_informacoes.configure(text_color="white")
 
@@ -214,7 +256,9 @@ frame_central = ctk.CTkFrame(root)
 frame_central.grid(row=4, column=0, columnspan=3, sticky=ctk.EW)
 frame_central.configure(fg_color="transparent")
 
-botao_expansor_informacoes = ctk.CTkButton(frame_central, text="Como funciona?", command=alternar_painel_informacoes)
+botao_expansor_informacoes = ctk.CTkButton(
+    frame_central, text="Como funciona?", command=alternar_painel_informacoes
+)
 botao_expansor_informacoes.pack(pady=5)
 
 root.mainloop()
