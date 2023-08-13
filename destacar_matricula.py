@@ -30,7 +30,7 @@ def alternar_painel_informacoes():
         painel_informacoes.grid(row=3, column=0, columnspan=3, padx=10, pady=10, sticky=ctk.EW)
 
 def realcar_numeros_matricula(pasta_destino):
-    global nome_arquivo
+    global nome_arquivo, caminho_arquivo_txt
     caminho_arquivo_pdf = campo_arquivo_pdf.get()
 
     arquivo_pdf = fitz.open(caminho_arquivo_pdf)
@@ -143,7 +143,7 @@ ctk.set_appearance_mode("dark")
 ctk.set_default_color_theme("dark-blue")
 
 root = ctk.CTk()
-root.title("Destacar PDFs por matrícula")
+root.title(" Destacar PDFs por matrícula")
 root.iconbitmap(resource_path('assets\\Cookie-Monster.ico'))
 root.resizable(False, False)
 
