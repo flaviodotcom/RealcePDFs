@@ -8,6 +8,14 @@ from tkinter import filedialog, messagebox
 nome_arquivo = ""
 
 
+class ErroPdf(Exception):
+    pass
+
+
+class ErroExcel(Exception):
+    pass
+
+
 def resource_path(relative_path):
     base_path = getattr(sys, "_MEIPASS", os.path.dirname(os.path.abspath(__file__)))
     return os.path.join(base_path, relative_path)
@@ -44,13 +52,13 @@ def alternar_painel_informacoes():
 
 def realcar_numeros_matricula(pasta_destino):
     global nome_arquivo, caminho_arquivo_txt
-    caminho_arquivo_pdf = campo_arquivo_pdf.get()
 
+    caminho_arquivo_pdf = campo_arquivo_pdf.get()
     arquivo_pdf = fitz.open(caminho_arquivo_pdf)
 
     caminho_arquivo_excel = campo_arquivo_excel.get()
-
     arquivo_excel = openpyxl.load_workbook(caminho_arquivo_excel)
+
     planilha = arquivo_excel.active
 
     num_linhas = planilha.max_row
@@ -128,24 +136,42 @@ def tratar_erro(caminho_arquivo_excel, caminho_arquivo_pdf):
             messagebox.showerror("Erro", mensagem_erro)
             return True
         return False
-    
+
     except Exception as e:
         messagebox.showerror("Erro", f"Ocorreu um erro: {str(e)}")
         return True
+
+
+def tratar_erro_pdf(caminho_arquivo_pdf):
+    try:
+        arquivo_pdf = fitz.open(caminho_arquivo_pdf)
+    except Exception as e:
+        raise ErroPdf(f"Erro no arquivo PDF: {str(e)}")
+
+
+def tratar_erro_excel(caminho_arquivo_excel):
+    try:
+        arquivo_excel = openpyxl.load_workbook(caminho_arquivo_excel)
+    except Exception as e:
+        raise ErroExcel(f"Erro no arquivo Excel: {str(e)}")
 
 
 def salvar_para_pasta_padrao():
     caminho_arquivo_excel = campo_arquivo_excel.get()
     caminho_arquivo_pdf = campo_arquivo_pdf.get()
 
-    if tratar_erro(caminho_arquivo_excel, caminho_arquivo_pdf):
-        return
+    try:
+        tratar_erro(caminho_arquivo_excel, caminho_arquivo_pdf)
+        pasta_destino = os.path.join(
+            os.path.expanduser("~"), "Desktop", "BENEFICIOS DESTACADOS"
+        )
+        tratar_erro_pdf(caminho_arquivo_pdf)
+        tratar_erro_excel(caminho_arquivo_excel)
 
-    pasta_destino = os.path.join(
-        os.path.expanduser("~"), "Desktop", "BENEFICIOS DESTACADOS"
-    )
-    os.makedirs(pasta_destino, exist_ok=True)
-    realcar_numeros_matricula(pasta_destino)
+        os.makedirs(pasta_destino, exist_ok=True)
+        realcar_numeros_matricula(pasta_destino)
+    except (ErroPdf, ErroExcel) as e:
+        messagebox.showerror("Erro", str(e))
 
 
 def salvar_para_pasta_selecionada_pelo_usuario():
@@ -176,33 +202,33 @@ frame_excel = ctk.CTkFrame(root)
 frame_excel.grid(sticky=ctk.EW, padx=10, pady=10)
 
 rotulo_arquivo_excel = ctk.CTkLabel(frame_excel, text="  Arquivo Excel:")
-rotulo_arquivo_excel.grid(row=0, column=0, padx=5)
+rotulo_arquivo_excel.grid(row=0, column=0, padx=3)
 
 campo_arquivo_excel = ctk.CTkEntry(
     frame_excel, placeholder_text="Selecione o arquivo Excel", width=300
 )
-campo_arquivo_excel.grid(row=0, column=1, padx=10)
+campo_arquivo_excel.grid(row=0, column=1, padx=5)
 
 botao_selecionar_arquivo_excel = ctk.CTkButton(
     frame_excel, text="Selecionar", command=selecionar_arquivo_excel
 )
-botao_selecionar_arquivo_excel.grid(row=0, column=2, padx=5)
+botao_selecionar_arquivo_excel.grid(row=0, column=2)
 
 frame_pdf = ctk.CTkFrame(root)
 frame_pdf.grid(sticky=ctk.EW, padx=10, pady=10)
 
 rotulo_arquivo_pdf = ctk.CTkLabel(frame_pdf, text="  Arquivo PDF:  ")
-rotulo_arquivo_pdf.grid(row=0, column=0, padx=5)
+rotulo_arquivo_pdf.grid(row=0, column=0, padx=3)
 
 campo_arquivo_pdf = ctk.CTkEntry(
     frame_pdf, placeholder_text="Selecione o arquivo PDF", width=300
 )
-campo_arquivo_pdf.grid(row=0, column=1, padx=10)
+campo_arquivo_pdf.grid(row=0, column=1, padx=5)
 
 botao_selecionar_arquivo_pdf = ctk.CTkButton(
     frame_pdf, text="Selecionar", command=selecionar_arquivo_pdf
 )
-botao_selecionar_arquivo_pdf.grid(row=0, column=2, padx=5)
+botao_selecionar_arquivo_pdf.grid(row=0, column=2)
 
 frame_salvar_e_info = ctk.CTkFrame(root)
 frame_salvar_e_info.grid(row=2, column=0, columnspan=3, sticky=ctk.EW, pady=5, padx=10)
@@ -210,17 +236,18 @@ frame_salvar_e_info.grid(row=2, column=0, columnspan=3, sticky=ctk.EW, pady=5, p
 botao_destacar = ctk.CTkButton(
     frame_salvar_e_info, text="Salvar", command=salvar_para_pasta_padrao
 )
-botao_destacar.grid(row=0, column=0, padx=5, sticky=ctk.EW)
+botao_destacar.grid(row=0, column=0, sticky=ctk.EW, padx=3)
 
 botao_destacar_em_outra_pasta = ctk.CTkButton(
     frame_salvar_e_info,
     text="Salvar Como",
     command=salvar_para_pasta_selecionada_pelo_usuario,
 )
-botao_destacar_em_outra_pasta.grid(row=0, column=1, padx=5, sticky=ctk.EW)
+botao_destacar_em_outra_pasta.grid(row=0, column=1, sticky=ctk.EW, padx=3)
 
 frame_salvar_e_info.columnconfigure(0, weight=1)
 frame_salvar_e_info.columnconfigure(1, weight=1)
+frame_salvar_e_info.configure(fg_color="transparent")
 
 painel_informacoes = ctk.CTkFrame(root)
 painel_informacoes.columnconfigure(0, weight=1)
