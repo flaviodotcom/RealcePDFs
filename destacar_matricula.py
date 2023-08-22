@@ -4,6 +4,8 @@ import openpyxl
 import sys
 import customtkinter as ctk
 from tkinter import filedialog, messagebox
+import PyPDF2
+import PyPDF4
 
 nome_arquivo = ""
 
@@ -155,6 +157,68 @@ def tratar_erro_excel(caminho_arquivo_excel):
     except Exception as e:
         raise ErroExcel(f"Erro no arquivo Excel: {str(e)}")
 
+def separar_vt():
+    pasta_destino = filedialog.askdirectory()
+    caminho_arquivo_pdf = campo_arquivo_pdf.get()
+
+    if not caminho_arquivo_pdf:
+        messagebox.showerror("Erro", "Por favor, selecione o arquivo PDF.")
+        return
+
+    arquivo_pdf = PyPDF2.PdfReader(caminho_arquivo_pdf)
+
+    caminho_arquivo_excel = campo_arquivo_excel.get()
+    if not caminho_arquivo_excel:
+        messagebox.showerror("Erro", "Por favor, selecione o arquivo Excel.")
+        return
+
+    arquivo_excel = openpyxl.load_workbook(caminho_arquivo_excel)
+    planilha = arquivo_excel.active
+
+    num_linhas = planilha.max_row
+
+    for linha in range(1, num_linhas + 1):
+        numero_matricula = planilha.cell(row=linha, column=2).value
+        numero_matricula = str(numero_matricula)
+
+        nome_func = planilha.cell(row=linha, column=3).value
+        nome_func = str(nome_func)
+
+        new_pdf = PyPDF2.PdfWriter()
+
+        for pagina_num, pagina in enumerate(arquivo_pdf.pages, start=1):
+            if numero_matricula in pagina.extract_text():
+                new_pdf.add_page(pagina)
+                print(f"Matrícula {numero_matricula} encontrada na página {pagina_num}")
+
+        if len(new_pdf.pages) > 0:
+            output_file = f"{pasta_destino}/{nome_func}.pdf"
+            with open(output_file, "wb") as f:
+                new_pdf.write(f)
+            print(f"PDF salvo para matrícula {nome_func} em {output_file}")
+
+    pasta = f"{pasta_destino}"
+
+    pdf_mesclado = PyPDF4.PdfFileMerger()
+    pdfs_encontrados = False
+    for arquivo in os.listdir(pasta):
+        if arquivo.lower().endswith(".pdf"):
+            caminho_arquivo = os.path.join(pasta, arquivo)
+            with open(caminho_arquivo, 'rb') as f:
+                pdf_mesclado.append(f)
+            pdfs_encontrados = True
+
+    # Salvar arquivo mesclado com o nome da pasta selecionada
+    if pdfs_encontrados:
+        caminho_arquivo_mesclado = f"{pasta_destino}/- Vt final.pdf"
+        with open(caminho_arquivo_mesclado, "wb") as saida:
+            pdf_mesclado.write(saida)
+
+        # Mensagem de conclusão
+        messagebox.showinfo("Concluído", "PDFs mesclados e salvos em: " + caminho_arquivo_mesclado)
+
+    messagebox.showinfo("Concluído", f"O PDF editado foi salvo em:\n{pasta_destino}")
+
 
 def salvar_para_pasta_padrao():
     caminho_arquivo_excel = campo_arquivo_excel.get()
@@ -287,5 +351,8 @@ botao_expansor_informacoes = ctk.CTkButton(
     frame_central, text="Como funciona?", command=alternar_painel_informacoes
 )
 botao_expansor_informacoes.pack(pady=5)
+
+separar_vts = ctk.CTkButton(frame_central, text="Separar PDF's por Matrícula", command=separar_vt)
+separar_vts.pack(pady=5, padx=5)
 
 root.mainloop()
