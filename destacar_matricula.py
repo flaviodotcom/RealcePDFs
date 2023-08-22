@@ -176,6 +176,12 @@ def separar_vt():
     planilha = arquivo_excel.active
 
     num_linhas = planilha.max_row
+    
+    pasta_destino = pasta_destino + "/Vt Separado"
+    check_folder = os.path.isdir(pasta_destino)
+    
+    if not check_folder:
+        os.makedirs(pasta_destino)
 
     for linha in range(1, num_linhas + 1):
         numero_matricula = planilha.cell(row=linha, column=2).value
@@ -249,6 +255,60 @@ def salvar_para_pasta_selecionada_pelo_usuario():
     if not pasta_destino:
         return
     realcar_numeros_matricula(pasta_destino)
+    
+    
+sec_window = None
+def fechar():
+    root.destroy()
+    if sec_window:
+        sec_window.destroy()
+    
+    
+def fechar_segunda_janela():
+    global sec_window
+    if sec_window:
+        sec_window.destroy()
+        sec_window = None
+
+
+def abrir_seg_janela():
+    global sec_window
+    if sec_window is None:
+        sec_window = ctk.CTk()
+        sec_window.protocol("WM_DELETE_WINDOW", fechar_segunda_janela)  # Configuração para fechar a janela corretamente
+        sec_window.title("Como Funciona?")
+        sec_window.resizable(False, False)
+        painel_informacoes = ctk.CTkFrame(sec_window)
+        painel_informacoes.pack()
+        
+        texto_informacoes = """
+        Este programa permite destacar a matrícula dos funcionários em um arquivo PDF usando informações de uma planilha do Excel. Principalmente usado para realçar os benefícios de Seguro de Vida, Plano Odontológico, Vale Transporte, Vale Alimentação e Vale Refeição.
+
+                                                        Orientações:
+
+        1. Clique no botão 'Selecionar' para escolher o arquivo Excel e PDF, respectivamente.
+
+        2. Certifique-se de que as matrículas estejam na coluna B da planilha. O programa percorre pela segunda coluna (coluna B), garanta que nesse coluna não existam outras informações.
+
+        3. O programa cria um arquivo de texto, que aponta quais foram as matrículas não encontradas junto com o nome do colaborador. Para que essa funcionalidade ocorra como esperado, mantenha o nome dos colaboradores na terceira coluna (coluna C) da planilha. O arquivo de texto será salvo no mesmo diretório do PDF editado.
+
+        4. Após selecionar os arquivos, clique no botão 'Salvar' para guardar o PDF editado na Área de Trabalho (Desktop), dentro da pasta 'BENEFÍCIOS DESTACADOS'. Alternativamente, clique no botão 'Salvar Como' para escolher o local de armazenamento do PDF editado que preferir.
+        """
+
+        tamanho_da_fonte = 14
+        fonte_personalizada = ("Helvetica", tamanho_da_fonte)
+        
+        rotulo_informacoes = ctk.CTkLabel(
+            painel_informacoes,
+            text=texto_informacoes,
+            wraplength=505,
+            justify="left",
+            font=fonte_personalizada,
+        )
+        rotulo_informacoes.pack(pady=10, padx=10)
+        rotulo_informacoes.configure(text_color="white")
+
+        sec_window.mainloop()
 
 
 ctk.set_appearance_mode("dark")
@@ -258,6 +318,18 @@ root = ctk.CTk()
 root.title(" Destacar PDFs por matrícula")
 root.iconbitmap(resource_path("assets\\Cookie-Monster.ico"))
 root.resizable(False, False)
+root.protocol("WM_DELETE_WINDOW", fechar)
+
+window_height = 220
+window_width = 560
+
+screen_height = root.winfo_screenheight()
+screen_width = root.winfo_screenwidth()
+
+x = (screen_width / 2) - (window_width / 2)
+y = (screen_height / 2) - (window_height / 2)
+
+root.geometry(f'{window_width}x{window_height}+{int(x)}+{int(y)}')
 
 root.columnconfigure(0, weight=1)
 root.rowconfigure(1, weight=1)
@@ -313,46 +385,10 @@ frame_salvar_e_info.columnconfigure(0, weight=1)
 frame_salvar_e_info.columnconfigure(1, weight=1)
 frame_salvar_e_info.configure(fg_color="transparent")
 
-painel_informacoes = ctk.CTkFrame(root)
-painel_informacoes.columnconfigure(0, weight=1)
+separar_vts = ctk.CTkButton(frame_salvar_e_info, text="Separar PDF's por Matrícula", command=separar_vt)
+separar_vts.grid(row=1, column=0, sticky=ctk.EW, padx=3, pady=10, columnspan=2)
 
-texto_informacoes = """
-Este programa permite destacar a matrícula dos funcionários em um arquivo PDF usando informações de uma planilha do Excel. Principalmente usado para realçar os benefícios de Seguro de Vida, Plano Odontológico, Vale Transporte, Vale Alimentação e Vale Refeição.
-
-                                                   Orientações:
-
-1. Clique no botão 'Selecionar' para escolher o arquivo Excel e PDF, respectivamente.
-
-2. Certifique-se de que as matrículas estejam na coluna B da planilha. O programa percorre pela segunda coluna (coluna B), garanta que nesse coluna não existam outras informações.
-
-3. O programa cria um arquivo de texto, que aponta quais foram as matrículas não encontradas junto com o nome do colaborador. Para que essa funcionalidade ocorra como esperado, mantenha o nome dos colaboradores na terceira coluna (coluna C) da planilha. O arquivo de texto será salvo no mesmo diretório do PDF editado.
-
-4. Após selecionar os arquivos, clique no botão 'Salvar' para guardar o PDF editado na Área de Trabalho (Desktop), dentro da pasta 'BENEFÍCIOS DESTACADOS'. Alternativamente, clique no botão 'Salvar Como' para escolher o local de armazenamento do PDF editado que preferir.
-"""
-
-tamanho_da_fonte = 14
-fonte_personalizada = ("Helvetica", tamanho_da_fonte)
-
-rotulo_informacoes = ctk.CTkLabel(
-    painel_informacoes,
-    text=texto_informacoes,
-    wraplength=505,
-    justify="left",
-    font=fonte_personalizada,
-)
-rotulo_informacoes.grid(row=0, column=0, padx=10, pady=5)
-rotulo_informacoes.configure(text_color="white")
-
-frame_central = ctk.CTkFrame(root)
-frame_central.grid(row=4, column=0, columnspan=3, sticky=ctk.EW)
-frame_central.configure(fg_color="transparent")
-
-botao_expansor_informacoes = ctk.CTkButton(
-    frame_central, text="Como funciona?", command=alternar_painel_informacoes
-)
-botao_expansor_informacoes.pack(pady=5)
-
-separar_vts = ctk.CTkButton(frame_central, text="Separar PDF's por Matrícula", command=separar_vt)
-separar_vts.pack(pady=5, padx=5)
+botao_expansor_informacoes = ctk.CTkButton(frame_salvar_e_info, text="Como funciona?", command=abrir_seg_janela)
+botao_expansor_informacoes.grid(row=2, column=0, columnspan=2, padx=3, pady=3)
 
 root.mainloop()
