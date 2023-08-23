@@ -256,7 +256,6 @@ def salvar_para_pasta_selecionada_pelo_usuario():
         return
     realcar_numeros_matricula(pasta_destino)
     
-    
 sec_window = None
 def fechar():
     root.destroy()
