@@ -3,9 +3,11 @@ import fitz
 import openpyxl
 import sys
 import customtkinter as ctk
-from tkinter import filedialog, messagebox
 import PyPDF2
 import PyPDF4
+from tkinter import filedialog, messagebox
+from segunda_janela import SegundaJanela
+
 
 nome_arquivo = ""
 
@@ -41,8 +43,6 @@ def selecionar_arquivo_pdf():
     campo_arquivo_pdf.delete(0, ctk.END)
     campo_arquivo_pdf.insert(0, caminho_arquivo)
     nome_arquivo = os.path.basename(caminho_arquivo)
-
-
 
 
 def realcar_numeros_matricula(pasta_destino):
@@ -248,61 +248,25 @@ def salvar_para_pasta_selecionada_pelo_usuario():
     if not pasta_destino:
         return
     realcar_numeros_matricula(pasta_destino)
-    
-sec_window = None
-def fechar():
-    root.destroy()
-    if sec_window:
-        sec_window.destroy()
-    
-    
+
+
 def fechar_segunda_janela():
-    global sec_window
-    if sec_window:
+    if sec_window.sec_window:
         sec_window.destroy()
         sec_window = None
 
 
 def abrir_seg_janela():
+    sec_window = SegundaJanela()
+    sec_window.abrir_janela()
+    sec_window.protocol("WM_DELETE_WINDOW", fechar_segunda_janela) 
+
+
+def fechar():
     global sec_window
-    if sec_window is None:
-        sec_window = ctk.CTk()
-        sec_window.protocol("WM_DELETE_WINDOW", fechar_segunda_janela) 
-        sec_window.title("Como Funciona?")
-        sec_window.resizable(False, False)
-        sec_window.config(padx=10, pady=10)
-        
-        painel_informacoes = ctk.CTkFrame(sec_window)
-        painel_informacoes.pack()
-        
-        texto_informacoes = """
-        Este programa permite destacar a matrícula dos funcionários em um arquivo PDF usando informações de uma planilha do Excel. Principalmente usado para realçar os benefícios de Seguro de Vida, Plano Odontológico, Vale Transporte, Vale Alimentação e Vale Refeição.
-
-                                                        Orientações:
-
-        1. Clique no botão 'Selecionar' para escolher o arquivo Excel e PDF, respectivamente.
-
-        2. Certifique-se de que as matrículas estejam na coluna B da planilha. O programa percorre pela segunda coluna (coluna B), garanta que nesse coluna não existam outras informações.
-
-        3. O programa cria um arquivo de texto, que aponta quais foram as matrículas não encontradas junto com o nome do colaborador. Para que essa funcionalidade ocorra como esperado, mantenha o nome dos colaboradores na terceira coluna (coluna C) da planilha. O arquivo de texto será salvo no mesmo diretório do PDF editado.
-
-        4. Após selecionar os arquivos, clique no botão 'Salvar' para guardar o PDF editado na Área de Trabalho (Desktop), dentro da pasta 'BENEFÍCIOS DESTACADOS'. Alternativamente, clique no botão 'Salvar Como' para escolher o local de armazenamento do PDF editado que preferir.
-        """
-
-        tamanho_da_fonte = 14
-        fonte_personalizada = ("Helvetica", tamanho_da_fonte)
-        
-        rotulo_informacoes = ctk.CTkLabel(
-            painel_informacoes,
-            text=texto_informacoes,
-            wraplength=606,
-            justify="left",
-            font=fonte_personalizada,
-        )
-        rotulo_informacoes.pack(pady=10, padx=10)
-        rotulo_informacoes.configure(text_color="white")
-
-        sec_window.mainloop()
+    root.destroy()
+    if sec_window.sec_window:
+        sec_window.sec_window.destroy()
 
 
 ctk.set_appearance_mode("dark")
@@ -312,7 +276,7 @@ root = ctk.CTk()
 root.title(" Destacar PDFs por matrícula")
 root.iconbitmap(resource_path("assets\\Cookie-Monster.ico"))
 root.resizable(False, False)
-root.protocol("WM_DELETE_WINDOW", fechar)
+# root.protocol("WM_DELETE_WINDOW", fechar)
 
 window_height = 220
 window_width = 560
