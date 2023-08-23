@@ -250,21 +250,20 @@ def salvar_para_pasta_selecionada_pelo_usuario():
     realcar_numeros_matricula(pasta_destino)
 
 
-sec_window = None
+# Segunda Janela
+sec_window = SegundaJanela()
+
 
 def abrir_seg_janela():
-    global sec_window
-    sec_window = SegundaJanela()
     sec_window.abrir_janela()
 
 
 def fechar():
-    global sec_window
     root.destroy()
-    if sec_window.sec_window:
-        sec_window.sec_window.destroy()
+    sec_window.fechar_seg_janela()
 
 
+# Janela Principal
 ctk.set_appearance_mode("dark")
 ctk.set_default_color_theme("dark-blue")
 
@@ -274,6 +273,7 @@ root.iconbitmap(resource_path("assets\\Cookie-Monster.ico"))
 root.resizable(False, False)
 root.protocol("WM_DELETE_WINDOW", fechar)
 
+# Ajuste de tamanho e centralização
 window_height = 220
 window_width = 560
 
@@ -288,6 +288,7 @@ root.geometry(f'{window_width}x{window_height}+{int(x)}+{int(y)}')
 root.columnconfigure(0, weight=1)
 root.rowconfigure(1, weight=1)
 
+# Botões e Frames
 frame_excel = ctk.CTkFrame(root)
 frame_excel.grid(sticky=ctk.EW, padx=10, pady=10)
 
