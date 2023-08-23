@@ -43,13 +43,6 @@ def selecionar_arquivo_pdf():
     nome_arquivo = os.path.basename(caminho_arquivo)
 
 
-def alternar_painel_informacoes():
-    if painel_informacoes.grid_info():
-        painel_informacoes.grid_remove()
-    else:
-        painel_informacoes.grid(
-            row=3, column=0, columnspan=3, padx=10, pady=10, sticky=ctk.EW
-        )
 
 
 def realcar_numeros_matricula(pasta_destino):
@@ -274,9 +267,11 @@ def abrir_seg_janela():
     global sec_window
     if sec_window is None:
         sec_window = ctk.CTk()
-        sec_window.protocol("WM_DELETE_WINDOW", fechar_segunda_janela)  # Configuração para fechar a janela corretamente
+        sec_window.protocol("WM_DELETE_WINDOW", fechar_segunda_janela) 
         sec_window.title("Como Funciona?")
         sec_window.resizable(False, False)
+        sec_window.config(padx=10, pady=10)
+        
         painel_informacoes = ctk.CTkFrame(sec_window)
         painel_informacoes.pack()
         
@@ -300,7 +295,7 @@ def abrir_seg_janela():
         rotulo_informacoes = ctk.CTkLabel(
             painel_informacoes,
             text=texto_informacoes,
-            wraplength=505,
+            wraplength=606,
             justify="left",
             font=fonte_personalizada,
         )
@@ -384,7 +379,7 @@ frame_salvar_e_info.columnconfigure(0, weight=1)
 frame_salvar_e_info.columnconfigure(1, weight=1)
 frame_salvar_e_info.configure(fg_color="transparent")
 
-separar_vts = ctk.CTkButton(frame_salvar_e_info, text="Separar PDF's por Matrícula", command=separar_vt)
+separar_vts = ctk.CTkButton(frame_salvar_e_info, text="Separar PDFs por Matrícula", command=separar_vt)
 separar_vts.grid(row=1, column=0, sticky=ctk.EW, padx=3, pady=10, columnspan=2)
 
 botao_expansor_informacoes = ctk.CTkButton(frame_salvar_e_info, text="Como funciona?", command=abrir_seg_janela)
