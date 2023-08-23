@@ -75,7 +75,7 @@ def realcar_numeros_matricula(pasta_destino):
                     realce = pagina.search_for(numero_matricula, hit_max=1)
                     if realce:
                         retangulo_realce = fitz.Rect(realce[0][:4])
-                        anotacao_realce = pagina.add_highlight_annot(retangulo_realce)
+                        pagina.add_highlight_annot(retangulo_realce)
                         encontrou_matricula = True
                         break
 
@@ -139,14 +139,14 @@ def tratar_erro(caminho_arquivo_excel, caminho_arquivo_pdf):
 
 def tratar_erro_pdf(caminho_arquivo_pdf):
     try:
-        arquivo_pdf = fitz.open(caminho_arquivo_pdf)
+        fitz.open(caminho_arquivo_pdf)
     except Exception as e:
         raise ErroPdf(f"Erro no arquivo PDF: {str(e)}")
 
 
 def tratar_erro_excel(caminho_arquivo_excel):
     try:
-        arquivo_excel = openpyxl.load_workbook(caminho_arquivo_excel)
+        openpyxl.load_workbook(caminho_arquivo_excel)
     except Exception as e:
         raise ErroExcel(f"Erro no arquivo Excel: {str(e)}")
 
@@ -250,16 +250,12 @@ def salvar_para_pasta_selecionada_pelo_usuario():
     realcar_numeros_matricula(pasta_destino)
 
 
-def fechar_segunda_janela():
-    if sec_window.sec_window:
-        sec_window.destroy()
-        sec_window = None
-
+sec_window = None
 
 def abrir_seg_janela():
+    global sec_window
     sec_window = SegundaJanela()
     sec_window.abrir_janela()
-    sec_window.protocol("WM_DELETE_WINDOW", fechar_segunda_janela) 
 
 
 def fechar():
@@ -276,7 +272,7 @@ root = ctk.CTk()
 root.title(" Destacar PDFs por matrícula")
 root.iconbitmap(resource_path("assets\\Cookie-Monster.ico"))
 root.resizable(False, False)
-# root.protocol("WM_DELETE_WINDOW", fechar)
+root.protocol("WM_DELETE_WINDOW", fechar)
 
 window_height = 220
 window_width = 560
