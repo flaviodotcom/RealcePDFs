@@ -1,4 +1,11 @@
 import customtkinter as ctk
+import sys
+import os
+
+
+def resource_path(relative_path):
+    base_path = getattr(sys, "_MEIPASS", os.path.dirname(os.path.abspath(__file__)))
+    return os.path.join(base_path, relative_path)
 
 
 class SegundaJanela():
@@ -13,6 +20,7 @@ class SegundaJanela():
             self.sec_window.resizable(False, False)
             self.sec_window.config(padx=10, pady=10)
             self.sec_window.protocol("WM_DELETE_WINDOW", self.fechar_seg_janela)
+            self.sec_window.iconbitmap(resource_path("assets\\vigarista.ico"))
 
             painel_informacoes = ctk.CTkFrame(self.sec_window)
             painel_informacoes.pack()
@@ -20,7 +28,7 @@ class SegundaJanela():
             texto_informacoes = """
             Este programa permite destacar a matrícula dos funcionários em um arquivo PDF usando informações de uma planilha do Excel. Principalmente usado para realçar os benefícios de Seguro de Vida, Plano Odontológico, Vale Transporte, Vale Alimentação e Vale Refeição.
 
-                                                            Orientações:
+                                                   Orientações:
 
             1. Clique no botão 'Selecionar' para escolher o arquivo Excel e PDF, respectivamente.
 
@@ -48,7 +56,7 @@ class SegundaJanela():
             self.sec_window.mainloop()
 
     def fechar_seg_janela(self):
-        if self.sec_window is not None:
+        if self.aberta:
             self.sec_window.destroy()
             self.aberta = False
 
