@@ -154,11 +154,50 @@ def separar_vt():
     pasta_destino = filedialog.askdirectory()
     caminho_arquivo_pdf = campo_arquivo_pdf.get()
 
+    arquivo_pdf = fitz.open(caminho_arquivo_pdf)
+
+    caminho_arquivo_excel = campo_arquivo_excel.get()
+    arquivo_excel = openpyxl.load_workbook(caminho_arquivo_excel)
+
+    planilha = arquivo_excel.active
+
+    num_linhas = planilha.max_row
+
+    for linha in range(9, num_linhas - 5):
+        numero_matricula = planilha.cell(row=linha, column=2).value
+        numero_matricula = str(numero_matricula)
+
+        nome_matricula = planilha.cell(row=linha, column=3).value
+        nome_matricula = str(nome_matricula).upper().split(" ", 3)
+        nome_matricula = nome_matricula[0] + " " + nome_matricula[1] + " " + nome_matricula[2]
+
+        for pagina in arquivo_pdf:
+            for linha_texto in pagina.get_text().splitlines():
+                if nome_matricula in linha_texto:
+                    realce_nome = pagina.search_for(nome_matricula, hit_max=1)
+                    if realce_nome:
+                        retangulo_realce = fitz.Rect(realce_nome[0][:4])
+                        pagina.add_highlight_annot(retangulo_realce)
+                if numero_matricula in linha_texto:
+                    realce = pagina.search_for(numero_matricula, hit_max=1)
+                    if realce:
+                        retangulo_realce = fitz.Rect(realce[0][:4])
+                        pagina.add_highlight_annot(retangulo_realce)
+
+    nome_arquivo_saida = nome_arquivo
+    numero_arquivo = 1
+    while os.path.exists(os.path.join(pasta_destino, nome_arquivo_saida)):
+        nome_arquivo_saida = f"{nome_arquivo.strip('.pdf')}({numero_arquivo}).pdf"
+        numero_arquivo += 1
+
+    caminho_arquivo_saida = os.path.join(pasta_destino, nome_arquivo_saida)
+    arquivo_pdf.save(caminho_arquivo_saida)
+
     if not caminho_arquivo_pdf:
         messagebox.showerror("Erro", "Por favor, selecione o arquivo PDF.")
         return
 
-    arquivo_pdf = PyPDF2.PdfReader(caminho_arquivo_pdf)
+    arquivo_pdf = PyPDF2.PdfReader(caminho_arquivo_saida)
 
     caminho_arquivo_excel = campo_arquivo_excel.get()
     if not caminho_arquivo_excel:
