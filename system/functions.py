@@ -19,6 +19,8 @@ def separar_vt(campo_arquivo_pdf, campo_arquivo_excel, nome_arquivo):
 
     num_linhas = planilha.max_row
 
+    matriculas_nao_encontradas = []
+
     for linha in range(9, num_linhas - 5):
         numero_matricula = planilha.cell(row=linha, column=2).value
         numero_matricula = str(numero_matricula)
@@ -26,6 +28,8 @@ def separar_vt(campo_arquivo_pdf, campo_arquivo_excel, nome_arquivo):
         nome_matricula = planilha.cell(row=linha, column=3).value
         nome_matricula = str(nome_matricula).upper().split(" ", 3)
         nome_matricula = nome_matricula[0] + " " + nome_matricula[1] + " " + nome_matricula[2]
+
+        encontrou_matricula = False
 
         for pagina in arquivo_pdf:
             for linha_texto in pagina.get_text().splitlines():
@@ -39,6 +43,11 @@ def separar_vt(campo_arquivo_pdf, campo_arquivo_excel, nome_arquivo):
                     if realce:
                         retangulo_realce = fitz.Rect(realce[0][:4])
                         pagina.add_highlight_annot(retangulo_realce)
+                        encontrou_matricula = True
+                        break
+
+            if not encontrou_matricula and nome_matricula and numero_matricula != "None":
+                matriculas_nao_encontradas.append(numero_matricula + " - " + nome_matricula)
 
     nome_arquivo_saida = nome_arquivo
     numero_arquivo = 1
@@ -111,4 +120,24 @@ def separar_vt(campo_arquivo_pdf, campo_arquivo_excel, nome_arquivo):
         # Mensagem de conclusão
         messagebox.showinfo("Concluído", "PDFs mesclados e salvos em: " + caminho_arquivo_mesclado)
 
+    if matriculas_nao_encontradas:
+        nome_arquivo_txt = "Matrículas não encontradas.txt"
+        numero_arquivo_txt = 1
+
+        while os.path.exists(os.path.join(pasta_destino, nome_arquivo_txt)):
+            nome_arquivo_txt = f"Matrículas não encontradas({numero_arquivo_txt}).txt"
+            numero_arquivo_txt += 1
+
+        caminho_arquivo_txt = os.path.join(pasta_destino, nome_arquivo_txt)
+
+        with open(caminho_arquivo_txt, "w") as arquivo_txt:
+            for matricula in matriculas_nao_encontradas:
+                arquivo_txt.write(matricula + "\n")
+
     messagebox.showinfo("Concluído", f"O PDF editado foi salvo em:\n{pasta_destino}")
+
+    messagebox.showwarning(
+        "Matrículas não encontradas",
+        f"Não foi possível encontrar algumas matrículas no arquivo PDF selecionado.\n\nFoi gerado um arquivo de texto que contém as matrículas não encontradas, salvo em:\n{caminho_arquivo_txt}",
+    )
+
