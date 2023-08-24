@@ -20,7 +20,7 @@ class SegundaJanela():
             self.sec_window.resizable(False, False)
             self.sec_window.config(padx=10, pady=10)
             self.sec_window.protocol("WM_DELETE_WINDOW", self.fechar_seg_janela)
-            self.sec_window.iconbitmap(resource_path("assets\\vigarista.ico"))
+            self.sec_window.iconbitmap(resource_path("../assets/vigarista.ico"))
 
             painel_informacoes = ctk.CTkFrame(self.sec_window)
             painel_informacoes.pack()
