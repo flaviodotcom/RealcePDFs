@@ -3,9 +3,9 @@ import fitz
 import openpyxl
 import sys
 import customtkinter as ctk
+import system.functions
 from tkinter import filedialog, messagebox
 from system.segunda_janela import SegundaJanela
-import system.functions
 
 
 nome_arquivo = ""

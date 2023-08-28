@@ -4,6 +4,8 @@ import os
 import fitz
 import openpyxl
 from tkinter import filedialog, messagebox
+from tqdm import tqdm
+from alive_progress import alive_bar
 
 
 def separar_vt(campo_arquivo_pdf, campo_arquivo_excel, nome_arquivo):
@@ -20,34 +22,34 @@ def separar_vt(campo_arquivo_pdf, campo_arquivo_excel, nome_arquivo):
     num_linhas = planilha.max_row
 
     matriculas_nao_encontradas = []
+    
+    # Inicialize a barra de progresso fora do loop
+    with alive_bar(num_linhas - 14, title='Destacando Matriculas...', bar='blocks') as bar:
+        for linha in range(9, num_linhas - 5):
+            numero_matricula = planilha.cell(row=linha, column=2).value
+            numero_matricula = str(numero_matricula)
 
-    for linha in range(9, num_linhas - 5):
-        numero_matricula = planilha.cell(row=linha, column=2).value
-        numero_matricula = str(numero_matricula)
+            nome_matricula = planilha.cell(row=linha, column=3).value
+            nome_matricula = str(nome_matricula).upper().split(" ", 3)
+            nome_matricula = nome_matricula[0] + " " + nome_matricula[1] + " " + nome_matricula[2]
 
-        nome_matricula = planilha.cell(row=linha, column=3).value
-        nome_matricula = str(nome_matricula).upper().split(" ", 3)
-        nome_matricula = nome_matricula[0] + " " + nome_matricula[1] + " " + nome_matricula[2]
+            encontrou_matricula = False
 
-        encontrou_matricula = False
+            # Atualize a barra de progresso a cada iteração de página
+            bar()
+            
+            for pagina in arquivo_pdf:
+                for linha_texto in pagina.get_text().splitlines():
+                    if numero_matricula in linha_texto:
+                        realce = pagina.search_for(numero_matricula, hit_max=1)
+                        if realce:
+                            retangulo_realce = fitz.Rect(realce[0][:4])
+                            pagina.add_highlight_annot(retangulo_realce)
+                            encontrou_matricula = True
+                            break
 
-        for pagina in arquivo_pdf:
-            for linha_texto in pagina.get_text().splitlines():
-                if nome_matricula in linha_texto:
-                    realce_nome = pagina.search_for(nome_matricula, hit_max=1)
-                    if realce_nome:
-                        retangulo_realce = fitz.Rect(realce_nome[0][:4])
-                        pagina.add_highlight_annot(retangulo_realce)
-                if numero_matricula in linha_texto:
-                    realce = pagina.search_for(numero_matricula, hit_max=1)
-                    if realce:
-                        retangulo_realce = fitz.Rect(realce[0][:4])
-                        pagina.add_highlight_annot(retangulo_realce)
-                        encontrou_matricula = True
-                        break
-
-            if not encontrou_matricula and nome_matricula and numero_matricula != "None":
-                matriculas_nao_encontradas.append(numero_matricula + " - " + nome_matricula)
+                    if not encontrou_matricula and nome_matricula and numero_matricula != "None":
+                        matriculas_nao_encontradas.append(numero_matricula + " - " + nome_matricula)
 
     nome_arquivo_saida = nome_arquivo
     numero_arquivo = 1
@@ -80,25 +82,29 @@ def separar_vt(campo_arquivo_pdf, campo_arquivo_excel, nome_arquivo):
     if not check_folder:
         os.makedirs(pasta_destino)
 
-    for linha in range(1, num_linhas + 1):
-        numero_matricula = planilha.cell(row=linha, column=2).value
-        numero_matricula = str(numero_matricula)
+    num_pag = len(arquivo_pdf.pages) # Número total de páginas
 
-        nome_func = planilha.cell(row=linha, column=3).value
-        nome_func = str(nome_func)
+    with alive_bar(num_pag, title='Separando PDFs...', bar='blocks') as bar:
+        for linha in range(1, num_linhas + 1):
+            numero_matricula = planilha.cell(row=linha, column=2).value
+            numero_matricula = str(numero_matricula)
 
-        new_pdf = PyPDF2.PdfWriter()
+            nome_func = planilha.cell(row=linha, column=3).value
+            nome_func = str(nome_func)
 
-        for pagina_num, pagina in enumerate(arquivo_pdf.pages, start=1):
-            if numero_matricula in pagina.extract_text():
-                new_pdf.add_page(pagina)
-                print(f"Matrícula {numero_matricula} encontrada na página {pagina_num}")
+            new_pdf = PyPDF2.PdfWriter()
 
-        if len(new_pdf.pages) > 0:
-            output_file = f"{pasta_destino}/{nome_func}.pdf"
-            with open(output_file, "wb") as f:
-                new_pdf.write(f)
-            print(f"PDF salvo para matrícula {nome_func} em {output_file}")
+            for pagina in arquivo_pdf.pages:
+                if numero_matricula in pagina.extract_text():
+                    new_pdf.add_page(pagina)
+                    # print(f"Matrícula {numero_matricula} encontrada na página {pagina_num}")
+
+            if len(new_pdf.pages) > 0:
+                output_file = f"{pasta_destino}/{nome_func}.pdf"
+                with open(output_file, "wb") as f:
+                    new_pdf.write(f)
+                # print(f"PDF salvo para matrícula {nome_func} em {output_file}")
+            bar()
 
     pasta = f"{pasta_destino}"
 
