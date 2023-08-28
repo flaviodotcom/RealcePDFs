@@ -48,8 +48,8 @@ def separar_vt(campo_arquivo_pdf, campo_arquivo_excel, nome_arquivo):
                             encontrou_matricula = True
                             break
 
-                    if not encontrou_matricula and nome_matricula and numero_matricula != "None":
-                        matriculas_nao_encontradas.append(numero_matricula + " - " + nome_matricula)
+            if not encontrou_matricula and nome_matricula and numero_matricula != "None":
+                matriculas_nao_encontradas.append(numero_matricula + " - " + nome_matricula)
 
     nome_arquivo_saida = nome_arquivo
     numero_arquivo = 1
@@ -82,9 +82,7 @@ def separar_vt(campo_arquivo_pdf, campo_arquivo_excel, nome_arquivo):
     if not check_folder:
         os.makedirs(pasta_destino)
 
-    num_pag = len(arquivo_pdf.pages) # Número total de páginas
-
-    with alive_bar(num_pag, title='Separando PDFs...', bar='blocks') as bar:
+    with alive_bar(num_linhas, title='Separando PDFs...', bar='blocks') as bar:
         for linha in range(1, num_linhas + 1):
             numero_matricula = planilha.cell(row=linha, column=2).value
             numero_matricula = str(numero_matricula)
