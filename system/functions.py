@@ -4,23 +4,6 @@ import os
 import fitz
 import openpyxl
 from tkinter import filedialog, messagebox
-from alive_progress import alive_bar
-import subprocess
-
-
-def run_command_in_cmd(command):
-    # Inicialize o processo do CMD
-    process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True, universal_newlines=True)
-
-    # Leia a saída do processo e imprima no CMD
-    while True:
-        output_line = process.stdout.readline()
-        if not output_line:
-            break
-        print(output_line.strip())
-
-    # Espere até que o processo termine
-    process.wait()
 
 def separar_vt(campo_arquivo_pdf, campo_arquivo_excel, nome_arquivo):
 
@@ -41,7 +24,7 @@ def separar_vt(campo_arquivo_pdf, campo_arquivo_excel, nome_arquivo):
         messagebox.showerror("Erro", "Por favor, selecione uma pasta de destino.")
         return
     
-    if messagebox.askokcancel(title="Revise as informações", message=f"O diretório escolhido:{pasta_destino}.\nDeseja Continuar?"):
+    if messagebox.askokcancel(title="Revise as informações", message=f"O diretório escolhido:\n{pasta_destino}.\nDeseja Continuar?"):
 
         arquivo_excel = openpyxl.load_workbook(caminho_arquivo_excel)
 
@@ -52,39 +35,30 @@ def separar_vt(campo_arquivo_pdf, campo_arquivo_excel, nome_arquivo):
         matriculas_nao_encontradas = []
 
         num_funcionarios = 0
+            
+        for linha in range(9, num_linhas - 5):
+            numero_matricula = planilha.cell(row=linha, column=2).value
+            numero_matricula = str(numero_matricula)
 
-        # Inicialize a barra de progresso fora do loop
-        with alive_bar(num_linhas - 14, title='Destacando Matriculas...', bar='classic') as bar:
-            for linha in range(9, num_linhas - 5):
-                numero_matricula = planilha.cell(row=linha, column=2).value
-                numero_matricula = str(numero_matricula)
+            nome_matricula = planilha.cell(row=linha, column=3).value
+            nome_matricula = str(nome_matricula).upper().split(" ", 3)
+            nome_matricula = nome_matricula[0] + " " + nome_matricula[1] + " " + nome_matricula[2]
 
-                nome_matricula = planilha.cell(row=linha, column=3).value
-                nome_matricula = str(nome_matricula).upper().split(" ", 3)
-                nome_matricula = nome_matricula[0] + " " + nome_matricula[1] + " " + nome_matricula[2]
+            encontrou_matricula = False
 
-                encontrou_matricula = False
+            for pagina in arquivo_pdf:
+                for linha_texto in pagina.get_text().splitlines():
+                    if numero_matricula in linha_texto:
+                        realce = pagina.search_for(numero_matricula, hit_max=1)
+                        num_funcionarios += 1
+                        if realce:
+                            retangulo_realce = fitz.Rect(realce[0][:4])
+                            pagina.add_highlight_annot(retangulo_realce)
+                            encontrou_matricula = True
+                            break
 
-                # Atualize a barra de progresso a cada iteração de página
-                bar()
-
-                for pagina in arquivo_pdf:
-                    for linha_texto in pagina.get_text().splitlines():
-                        if numero_matricula in linha_texto:
-                            realce = pagina.search_for(numero_matricula, hit_max=1)
-                            num_funcionarios += 1
-                            if realce:
-                                retangulo_realce = fitz.Rect(realce[0][:4])
-                                pagina.add_highlight_annot(retangulo_realce)
-                                encontrou_matricula = True
-                                break
-
-                if not encontrou_matricula and nome_matricula and numero_matricula != "None":
-                    matriculas_nao_encontradas.append(numero_matricula + " - " + nome_matricula)
-
-        # Abrir o CMD e mostrar a barra de progresso lá
-        cmd_command = 'echo Executando tarefa...'
-        run_command_in_cmd(cmd_command)
+            if not encontrou_matricula and nome_matricula and numero_matricula != "None":
+                matriculas_nao_encontradas.append(numero_matricula + " - " + nome_matricula)
 
         nome_arquivo_saida = nome_arquivo
         numero_arquivo = 1
@@ -103,25 +77,24 @@ def separar_vt(campo_arquivo_pdf, campo_arquivo_excel, nome_arquivo):
         if not check_folder:
             os.makedirs(pasta_destino)
 
-        with alive_bar(num_funcionarios, title='Separando PDFs...', bar='classic') as bar:
-            for linha in range(1, num_linhas + 1):
-                numero_matricula = planilha.cell(row=linha, column=2).value
-                numero_matricula = str(numero_matricula)
+        for linha in range(1, num_linhas + 1):
+            numero_matricula = planilha.cell(row=linha, column=2).value
+            numero_matricula = str(numero_matricula)
 
-                nome_func = planilha.cell(row=linha, column=3).value
-                nome_func = str(nome_func)
+            nome_func = planilha.cell(row=linha, column=3).value
+            nome_func = str(nome_func)
 
-                new_pdf = PyPDF2.PdfWriter()
+            new_pdf = PyPDF2.PdfWriter()
 
-                for pagina in arquivo_pdf.pages:
-                    if numero_matricula in pagina.extract_text():
-                        new_pdf.add_page(pagina)
+            for pagina in arquivo_pdf.pages:
+                if numero_matricula in pagina.extract_text():
+                    new_pdf.add_page(pagina)
 
-                if len(new_pdf.pages) > 0:
-                    output_file = f"{pasta_destino}/{nome_func}.pdf"
-                    with open(output_file, "wb") as f:
-                        new_pdf.write(f)
-                        bar()
+            if len(new_pdf.pages) > 0:
+                output_file = f"{pasta_destino}/{nome_func}.pdf"
+                with open(output_file, "wb") as f:
+                    new_pdf.write(f)
+                    
 
         pasta = f"{pasta_destino}"
 
@@ -140,9 +113,6 @@ def separar_vt(campo_arquivo_pdf, campo_arquivo_excel, nome_arquivo):
             with open(caminho_arquivo_mesclado, "wb") as saida:
                 pdf_mesclado.write(saida)
 
-            # Mensagem de conclusão
-            messagebox.showinfo("Concluído", "PDFs mesclados e salvos em: " + caminho_arquivo_mesclado)
-
         if matriculas_nao_encontradas:
             nome_arquivo_txt = "Matrículas não encontradas.txt"
             numero_arquivo_txt = 1
@@ -157,7 +127,7 @@ def separar_vt(campo_arquivo_pdf, campo_arquivo_excel, nome_arquivo):
                 for matricula in matriculas_nao_encontradas:
                     arquivo_txt.write(matricula + "\n")
 
-        messagebox.showinfo("Concluído", f"O PDF editado foi salvo em:\n{pasta_destino}")
+        messagebox.showinfo("Concluído", f"O Arquivo final foi salvo em:\n{pasta_destino}")
 
         messagebox.showwarning(
             "Matrículas não encontradas",
