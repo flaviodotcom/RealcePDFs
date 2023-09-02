@@ -23,23 +23,26 @@ def run_command_in_cmd(command):
     process.wait()
 
 def separar_vt(campo_arquivo_pdf, campo_arquivo_excel, nome_arquivo):
+
+    caminho_arquivo_excel = campo_arquivo_excel.get()
+    if not caminho_arquivo_excel:
+        messagebox.showerror("Erro", "Por favor, selecione o arquivo Excel.")
+        return
+
+    caminho_arquivo_pdf = campo_arquivo_pdf.get()
+    if not caminho_arquivo_pdf:
+        messagebox.showerror("Erro", "Por favor, selecione o arquivo PDF.")
+        return
+
+    arquivo_pdf = fitz.open(caminho_arquivo_pdf)
+
     pasta_destino = filedialog.askdirectory()
     if not pasta_destino:
         messagebox.showerror("Erro", "Por favor, selecione uma pasta de destino.")
         return
+    
     if messagebox.askokcancel(title="Revise as informações", message=f"O diretório escolhido:{pasta_destino}.\nDeseja Continuar?"):
-        caminho_arquivo_pdf = campo_arquivo_pdf.get()
-        if not caminho_arquivo_pdf:
-            messagebox.showerror("Erro", "Por favor, selecione o arquivo PDF.")
-            return
 
-        arquivo_pdf = fitz.open(caminho_arquivo_pdf)
-
-        caminho_arquivo_excel = campo_arquivo_excel.get()
-        if not caminho_arquivo_excel:
-            messagebox.showerror("Erro", "Por favor, selecione o arquivo Excel.")
-            return
-        
         arquivo_excel = openpyxl.load_workbook(caminho_arquivo_excel)
 
         planilha = arquivo_excel.active
