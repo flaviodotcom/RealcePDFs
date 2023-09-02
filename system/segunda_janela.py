@@ -37,6 +37,12 @@ class SegundaJanela():
             3. O programa cria um arquivo de texto, que aponta quais foram as matrículas não encontradas junto com o nome do colaborador. Para que essa funcionalidade ocorra como esperado, mantenha o nome dos colaboradores na terceira coluna (coluna C) da planilha. O arquivo de texto será salvo no mesmo diretório do PDF editado.
 
             4. Após selecionar os arquivos, clique no botão 'Salvar' para guardar o PDF editado na Área de Trabalho (Desktop), dentro da pasta 'BENEFÍCIOS DESTACADOS'. Alternativamente, clique no botão 'Salvar Como' para escolher o local de armazenamento do PDF editado que preferir.
+            
+                                                   Separar PDFS:
+
+            1. Clique no botão 'Selecionar' para escolher o arquivo Excel e PDF, respectivamente.
+            
+            2. Após selecionar os arquivos, clique no botão 'Separar PDFs por Matricula' para escolher a pasta de destino do PDF realçado, logo após o programa irá criar uma pasta chamada "Vt Separados", onde irá conter cada pagina do PDF realçado que encontrou a matrícula, e no fim irá juntar todos os PDFs que estão na pasta em um arquivo chamado "Vt Final".
             """
 
             tamanho_da_fonte = 14
