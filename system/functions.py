@@ -6,7 +6,6 @@ import openpyxl
 from tkinter import filedialog, messagebox
 
 def separar_vt(campo_arquivo_pdf, campo_arquivo_excel, nome_arquivo):
-
     caminho_arquivo_excel = campo_arquivo_excel.get()
     if not caminho_arquivo_excel:
         messagebox.showerror("Erro", "Por favor, selecione o arquivo Excel.")
