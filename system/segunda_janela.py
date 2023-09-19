@@ -65,6 +65,3 @@ class SegundaJanela():
         if self.aberta:
             self.sec_window.destroy()
             self.aberta = False
-
-
-

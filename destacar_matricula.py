@@ -7,7 +7,6 @@ import system.functions
 from tkinter import filedialog, messagebox
 from system.segunda_janela import SegundaJanela
 
-
 nome_arquivo = ""
 
 
@@ -42,6 +41,10 @@ def selecionar_arquivo_pdf():
     campo_arquivo_pdf.delete(0, ctk.END)
     campo_arquivo_pdf.insert(0, caminho_arquivo)
     nome_arquivo = os.path.basename(caminho_arquivo)
+
+
+def fechar_programa():
+    root.destroy()
 
 
 def realcar_numeros_matricula(pasta_destino):
@@ -154,6 +157,7 @@ def separar_vt():
     system.functions.separar_vt(campo_arquivo_pdf=campo_arquivo_pdf,
                                 campo_arquivo_excel=campo_arquivo_excel,
                                 nome_arquivo=nome_arquivo)
+
 
 def salvar_para_pasta_padrao():
     caminho_arquivo_excel = campo_arquivo_excel.get()
@@ -281,5 +285,7 @@ separar_vts.grid(row=1, column=0, sticky=ctk.EW, padx=3, pady=10, columnspan=2)
 
 botao_expansor_informacoes = ctk.CTkButton(frame_salvar_e_info, text="Como funciona?", command=abrir_seg_janela)
 botao_expansor_informacoes.grid(row=2, column=0, columnspan=2, padx=3, pady=3)
+
+root.protocol("WM_DELETE_WINDOW", fechar_programa)
 
 root.mainloop()
