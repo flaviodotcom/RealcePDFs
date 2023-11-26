@@ -1,7 +1,35 @@
-# Destacar PDFs por Matrícula
+<p align="center">
+  <img height="250" src="assets/vigarista.ico">
+</p>
+
+<h1 align="center">Destacar PDFs por Matrícula</h1>
+<br>
 Este é um programa executável que permite destacar matrículas de funcionários em um arquivo PDF com base em informações de uma planilha do Excel. Ele é especialmente útil para realçar benefícios como Seguro de Vida, Plano Odontológico, Vale Transporte, Vale Alimentação e Vale Refeição em documentos PDF.
 
-# Como Usar
+## Requerimentos
+
+### `Python 3.11.0`
+
+### Configuração de Virtual Environment
+
+Para executar o programa pelo Python, Você pode configurar um ambiente virtual usando `virtualenv`. Siga os passos abaixo:
+
+```bash
+pip install virtualenv
+python3.11 -m venv <virtual-environment-name>
+source env/bin/activate
+```
+
+### Instalação de Dependências
+
+Instale as dependências necessárias usando o `pip`:
+
+```bash
+pip install --upgrade pip
+pip install -r requirements.txt
+```
+
+## Como Usar
 Selecione os Arquivos: Clique nos botões "Selecionar" para escolher os arquivos Excel e PDF correspondentes.
 
 Formato do Arquivo Excel: Certifique-se de que as matrículas estejam na coluna B da planilha. O programa analisará essa coluna em busca das matrículas. Não deve haver outras informações nessa coluna.
@@ -12,12 +40,12 @@ Arquivo de Texto: O programa cria um arquivo de texto que lista as matrículas n
 
 Salvar: Clique no botão "Salvar" para salvar o PDF editado na Área de Trabalho (Desktop), dentro da pasta "BENEFÍCIOS DESTACADOS". Você também pode clicar em "Salvar Como" para escolher um local de armazenamento personalizado.
 
-# Funcionalidades Adicionais
-### Separar PDFs por Matrícula: Este programa também permite separar o PDF em vários arquivos, um para cada matrícula encontrada. Os arquivos serão salvos em uma pasta de sua escolha.
+## Funcionalidades Adicionais
+#### Separar PDFs por Matrícula: Este programa também permite separar o PDF em vários arquivos, um para cada matrícula encontrada. Os arquivos serão salvos em uma pasta de sua escolha.
 Requisitos
 Este programa requer a seleção de um arquivo Excel (.xlsx, .csv ou .xls) e um arquivo PDF para funcionar corretamente.
 
-# Como Funciona?
+## Como Funciona?
 O programa utiliza bibliotecas como PyPDF2, PyPDF4, openpyxl e customtkinter para realizar as seguintes tarefas:
 
 Abre o arquivo PDF e a planilha do Excel selecionados.
@@ -27,7 +55,7 @@ Salva o PDF editado na Área de Trabalho (Desktop) em uma pasta chamada "BENEFÍ
 Oferece a opção de salvar o PDF em um local personalizado.
 Permite separar o PDF em arquivos individuais para cada matrícula encontrada.
 
-# Aviso
-Certifique-se de seguir as orientações acima para garantir o funcionamento adequado do programa.
+## Aviso
+- Certifique-se de seguir as orientações acima para garantir o funcionamento adequado do programa.
 
-Divirta-se usando esta ferramenta! Se encontrar algum problema ou tiver dúvidas, entre em contato com o desenvolvedor.
+- Divirta-se usando esta ferramenta! Se encontrar algum problema ou tiver dúvidas, entre em contato com o desenvolvedor.

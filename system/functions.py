@@ -1,9 +1,12 @@
+import os
+
 import PyPDF2
 import PyPDF4
-import os
 import fitz
 import openpyxl
+
 from tkinter import filedialog, messagebox
+
 
 def separar_vt(campo_arquivo_pdf, campo_arquivo_excel, nome_arquivo):
     caminho_arquivo_excel = campo_arquivo_excel.get()
@@ -22,8 +25,9 @@ def separar_vt(campo_arquivo_pdf, campo_arquivo_excel, nome_arquivo):
     if not pasta_destino:
         messagebox.showerror("Erro", "Por favor, selecione uma pasta de destino.")
         return
-    
-    if messagebox.askokcancel(title="Revise as informações", message=f"O diretório escolhido:\n{pasta_destino}.\nDeseja Continuar?"):
+
+    if messagebox.askokcancel(title="Revise as informações",
+                              message=f"O diretório escolhido:\n{pasta_destino}.\nDeseja Continuar?"):
 
         arquivo_excel = openpyxl.load_workbook(caminho_arquivo_excel)
 
@@ -34,7 +38,7 @@ def separar_vt(campo_arquivo_pdf, campo_arquivo_excel, nome_arquivo):
         matriculas_nao_encontradas = []
 
         num_funcionarios = 0
-            
+
         for linha in range(9, num_linhas - 5):
             numero_matricula = planilha.cell(row=linha, column=2).value
             numero_matricula = str(numero_matricula)
@@ -93,7 +97,6 @@ def separar_vt(campo_arquivo_pdf, campo_arquivo_excel, nome_arquivo):
                 output_file = f"{pasta_destino}/{nome_func}.pdf"
                 with open(output_file, "wb") as f:
                     new_pdf.write(f)
-                    
 
         pasta = f"{pasta_destino}"
 
@@ -132,4 +135,3 @@ def separar_vt(campo_arquivo_pdf, campo_arquivo_excel, nome_arquivo):
             "Matrículas não encontradas",
             f"Não foi possível encontrar algumas matrículas no arquivo PDF selecionado.\n\nFoi gerado um arquivo de texto que contém as matrículas não encontradas, salvo em:\n{caminho_arquivo_txt}",
         )
-

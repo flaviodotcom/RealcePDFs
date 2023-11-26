@@ -1,6 +1,7 @@
-import customtkinter as ctk
-import sys
 import os
+import sys
+
+import customtkinter as ctk
 
 
 def resource_path(relative_path):

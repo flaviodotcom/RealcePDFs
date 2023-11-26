@@ -1,10 +1,12 @@
 import os
+import sys
+
 import fitz
 import openpyxl
-import sys
 import customtkinter as ctk
-import system.functions
 from tkinter import filedialog, messagebox
+
+import system.functions
 from system.segunda_janela import SegundaJanela
 
 nome_arquivo = ""
