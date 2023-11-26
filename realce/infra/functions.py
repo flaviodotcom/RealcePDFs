@@ -133,5 +133,6 @@ def separar_vt(campo_arquivo_pdf, campo_arquivo_excel, nome_arquivo):
 
         messagebox.showwarning(
             "Matrículas não encontradas",
-            f"Não foi possível encontrar algumas matrículas no arquivo PDF selecionado.\n\nFoi gerado um arquivo de texto que contém as matrículas não encontradas, salvo em:\n{caminho_arquivo_txt}",
+            f"Não foi possível encontrar algumas matrículas no arquivo PDF selecionado.\n\nFoi gerado um "
+            f"arquivo de texto que contém as matrículas não encontradas, salvo em:\n{caminho_arquivo_txt}",
         )

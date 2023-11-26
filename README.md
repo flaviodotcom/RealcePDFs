@@ -1,5 +1,5 @@
 <p align="center">
-  <img height="250" src="assets/vigarista.ico">
+  <img height="150" src="resources/images/vigarista.ico">
 </p>
 
 <h1 align="center">Destacar PDFs por Matrícula</h1>
@@ -28,6 +28,9 @@ Instale as dependências necessárias usando o `pip`:
 pip install --upgrade pip
 pip install -r requirements.txt
 ```
+
+## Executável
+O projeto oferece um arquivo executável, possibilitando a utilização do programa em computadores que não possuem o interpretador Python instalado.  
 
 ## Como Usar
 Selecione os Arquivos: Clique nos botões "Selecionar" para escolher os arquivos Excel e PDF correspondentes.
