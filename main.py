@@ -1,13 +1,13 @@
 import os
-import sys
 
 import fitz
 import openpyxl
 import customtkinter as ctk
 from tkinter import filedialog, messagebox
 
-import system.functions
-from system.segunda_janela import SegundaJanela
+import realce.infra.functions
+from realce.app.info import SegundaJanela
+from realce.infra.helper import resource_path
 
 nome_arquivo = ""
 
@@ -18,11 +18,6 @@ class ErroPdf(Exception):
 
 class ErroExcel(Exception):
     pass
-
-
-def resource_path(relative_path):
-    base_path = getattr(sys, "_MEIPASS", os.path.dirname(os.path.abspath(__file__)))
-    return os.path.join(base_path, relative_path)
 
 
 def selecionar_arquivo_excel():
@@ -156,9 +151,9 @@ def tratar_erro_excel(caminho_arquivo_excel):
 
 
 def separar_vt():
-    system.functions.separar_vt(campo_arquivo_pdf=campo_arquivo_pdf,
-                                campo_arquivo_excel=campo_arquivo_excel,
-                                nome_arquivo=nome_arquivo)
+    realce.infra.functions.separar_vt(campo_arquivo_pdf=campo_arquivo_pdf,
+                                      campo_arquivo_excel=campo_arquivo_excel,
+                                      nome_arquivo=nome_arquivo)
 
 
 def salvar_para_pasta_padrao():
@@ -211,7 +206,7 @@ ctk.set_default_color_theme("dark-blue")
 
 root = ctk.CTk()
 root.title(" Destacar PDFs por matrícula")
-root.iconbitmap(resource_path("assets\\Cookie-Monster.ico"))
+root.iconbitmap(resource_path("resources/images/Cookie-Monster.ico"))
 root.resizable(False, False)
 root.protocol("WM_DELETE_WINDOW", fechar)
 
