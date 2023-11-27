@@ -1,9 +1,9 @@
-from customtkinter import set_appearance_mode, set_default_color_theme, CTk, CTkFrame, CTkLabel, CTkEntry, CTkButton, EW
-
 from realce.app.info import SegundaJanela
 from realce.infra.helper import resource_path
 from realce.core.selecionar import SelectFiles
 from realce.core.salvar import salvar_para_pasta_padrao, salvar_para_pasta_selecionada_pelo_usuario
+
+from customtkinter import set_appearance_mode, set_default_color_theme, CTk, CTkFrame, CTkLabel, CTkEntry, CTkButton, EW
 
 
 class HomeWindow:
@@ -88,11 +88,6 @@ class HomeWidgets(HomeWindow):
         botao_selecionar_arquivo_pdf.grid(row=0, column=2)
 
     def build_buttons_salvar(self):
-        botao_selecionar_arquivo_pdf = CTkButton(self.frame_pdf, text="Selecionar",
-                                                 command=lambda: SelectFiles.selecionar_arquivo_pdf(
-                                                     self.campo_arquivo_pdf))
-        botao_selecionar_arquivo_pdf.grid(row=0, column=2)
-
         frame_salvar_e_info = self.frame_botoes()
 
         botao_destacar = CTkButton(frame_salvar_e_info, text="Salvar",

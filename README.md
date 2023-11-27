@@ -61,4 +61,6 @@ Permite separar o PDF em arquivos individuais para cada matrícula encontrada.
 ## Aviso
 - Certifique-se de seguir as orientações acima para garantir o funcionamento adequado do programa.
 
-- Divirta-se usando esta ferramenta! Se encontrar algum problema ou tiver dúvidas, entre em contato com o desenvolvedor.
+
+- Em alguns casos, a biblioteca `PymuPDF` pode causar alguns problemas de importação. Nesse caso, execute no terminal o comando `pip install --upgrade --force-reinstall pymupdf`
+

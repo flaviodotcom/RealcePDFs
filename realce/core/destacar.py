@@ -2,36 +2,32 @@ import os
 
 import fitz
 import openpyxl
+from pathlib import Path
 from tkinter import messagebox
+
+from realce.core.selecionar import SelectFiles
 
 
 class RealceMatriculas:
+    caminho_arquivo_saida: str | Path
 
     def __init__(self, pasta_destino, campo_arquivo_excel, campo_arquivo_pdf):
         self.destacar_pdf(pasta_destino, campo_arquivo_excel, campo_arquivo_pdf)
 
     @staticmethod
     def destacar_pdf(pasta_destino, campo_arquivo_excel, campo_arquivo_pdf):
-        nome_arquivo = ''
-
+        nome_arquivo = SelectFiles.guardar_nome()
         caminho_arquivo_excel = campo_arquivo_excel.get()
-        arquivo_excel = openpyxl.load_workbook(caminho_arquivo_excel)
-
         caminho_arquivo_pdf = campo_arquivo_pdf.get()
+
+        arquivo_excel = openpyxl.load_workbook(caminho_arquivo_excel)
         arquivo_pdf = fitz.open(caminho_arquivo_pdf)
-
-        planilha = arquivo_excel.active
-
-        num_linhas = planilha.max_row
 
         matriculas_nao_encontradas = []
 
-        for linha in range(1, num_linhas + 1):
-            numero_matricula = planilha.cell(row=linha, column=2).value
-            numero_matricula = str(numero_matricula)
-
-            nome_matricula = planilha.cell(row=linha, column=3).value
-            nome_matricula = str(nome_matricula).upper()
+        for linha in range(1, arquivo_excel.active.max_row + 1):
+            numero_matricula = str(arquivo_excel.active.cell(row=linha, column=2).value)
+            nome_matricula = str(arquivo_excel.active.cell(row=linha, column=3).value).upper()
 
             encontrou_matricula = False
 
@@ -46,36 +42,45 @@ class RealceMatriculas:
                             break
 
             if not encontrou_matricula and nome_matricula and numero_matricula != "None":
-                matriculas_nao_encontradas.append(numero_matricula + " - " + nome_matricula)
+                matriculas_nao_encontradas.append(f"{numero_matricula} - {nome_matricula}")
 
+        RealceMatriculas.salvar_arquivo_pdf(pasta_destino, nome_arquivo, arquivo_pdf)
+        RealceMatriculas.exibir_resultados(matriculas_nao_encontradas)
+
+    @staticmethod
+    def salvar_arquivo_pdf(pasta_destino, nome_arquivo, arquivo_pdf):
         nome_arquivo_saida = nome_arquivo
         numero_arquivo = 1
+
         while os.path.exists(os.path.join(pasta_destino, nome_arquivo_saida)):
-            nome_arquivo_saida = f"{nome_arquivo.strip('.pdf')}({numero_arquivo}).pdf"
+            nome_arquivo_saida = f"{os.path.splitext(nome_arquivo)[0]}({numero_arquivo}).pdf"
             numero_arquivo += 1
 
-        caminho_arquivo_saida = os.path.join(pasta_destino, nome_arquivo_saida)
-        arquivo_pdf.save(caminho_arquivo_saida)
+        RealceMatriculas.caminho_arquivo_saida = os.path.join(pasta_destino, nome_arquivo_saida)
+        arquivo_pdf.save(RealceMatriculas.caminho_arquivo_saida)
+
+    @staticmethod
+    def exibir_resultados(matriculas_nao_encontradas):
+        messagebox.showinfo("Concluído", f"O PDF editado foi salvo em:\n{RealceMatriculas.caminho_arquivo_saida}")
 
         if matriculas_nao_encontradas:
-            nome_arquivo_txt = "Matrículas não encontradas.txt"
-            numero_arquivo_txt = 1
+            RealceMatriculas.salvar_matriculas_nao_encontradas(matriculas_nao_encontradas,
+                                                               RealceMatriculas.caminho_arquivo_saida)
 
-            while os.path.exists(os.path.join(pasta_destino, nome_arquivo_txt)):
-                nome_arquivo_txt = f"Matrículas não encontradas({numero_arquivo_txt}).txt"
-                numero_arquivo_txt += 1
+    @staticmethod
+    def salvar_matriculas_nao_encontradas(matriculas_nao_encontradas, pasta_destino):
+        nome_arquivo_txt = "Matrículas não encontradas.txt"
+        numero_arquivo_txt = 1
 
-            caminho_arquivo_txt = os.path.join(pasta_destino, nome_arquivo_txt)
+        while os.path.exists(os.path.join(pasta_destino, nome_arquivo_txt)):
+            nome_arquivo_txt = f"Matrículas não encontradas({numero_arquivo_txt}).txt"
+            numero_arquivo_txt += 1
 
-            with open(caminho_arquivo_txt, "w") as arquivo_txt:
-                for matricula in matriculas_nao_encontradas:
-                    arquivo_txt.write(matricula + "\n")
+        caminho_arquivo_txt = os.path.join(os.path.dirname(pasta_destino), nome_arquivo_txt)
 
-        messagebox.showinfo(
-            "Concluído", f"O PDF editado foi salvo em:\n{caminho_arquivo_saida}"
-        )
-
-        caminho_arquivo_txt = None
+        with open(caminho_arquivo_txt, "w") as arquivo_txt:
+            for matricula in matriculas_nao_encontradas:
+                arquivo_txt.write(matricula + "\n")
 
         messagebox.showwarning(
             "Matrículas não encontradas",
