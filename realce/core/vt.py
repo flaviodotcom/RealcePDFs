@@ -1,10 +1,10 @@
 import os
 
-import PyPDF2
-import PyPDF4
 import fitz
-import openpyxl
 
+from openpyxl import load_workbook
+from PyPDF4 import PdfFileMerger
+from PyPDF2 import PdfWriter, PdfReader
 from tkinter import filedialog, messagebox
 
 
@@ -29,7 +29,7 @@ def separar_vt(campo_arquivo_pdf, campo_arquivo_excel, nome_arquivo):
     if messagebox.askokcancel(title="Revise as informações",
                               message=f"O diretório escolhido:\n{pasta_destino}.\nDeseja Continuar?"):
 
-        arquivo_excel = openpyxl.load_workbook(caminho_arquivo_excel)
+        arquivo_excel = load_workbook(caminho_arquivo_excel)
 
         planilha = arquivo_excel.active
 
@@ -72,7 +72,7 @@ def separar_vt(campo_arquivo_pdf, campo_arquivo_excel, nome_arquivo):
         caminho_arquivo_saida = os.path.join(pasta_destino, nome_arquivo_saida)
         arquivo_pdf.save(caminho_arquivo_saida)
 
-        arquivo_pdf = PyPDF2.PdfReader(caminho_arquivo_saida)
+        arquivo_pdf = PdfReader(caminho_arquivo_saida)
 
         pasta_destino = pasta_destino + "/Vt Separado"
         check_folder = os.path.isdir(pasta_destino)
@@ -87,7 +87,7 @@ def separar_vt(campo_arquivo_pdf, campo_arquivo_excel, nome_arquivo):
             nome_func = planilha.cell(row=linha, column=3).value
             nome_func = str(nome_func)
 
-            new_pdf = PyPDF2.PdfWriter()
+            new_pdf = PdfWriter()
 
             for pagina in arquivo_pdf.pages:
                 if numero_matricula in pagina.extract_text():
@@ -100,7 +100,7 @@ def separar_vt(campo_arquivo_pdf, campo_arquivo_excel, nome_arquivo):
 
         pasta = f"{pasta_destino}"
 
-        pdf_mesclado = PyPDF4.PdfFileMerger()
+        pdf_mesclado = PdfFileMerger()
         pdfs_encontrados = False
         for arquivo in os.listdir(pasta):
             if arquivo.lower().endswith(".pdf"):

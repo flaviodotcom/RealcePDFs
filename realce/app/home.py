@@ -129,8 +129,3 @@ class HomeWidgets(HomeWindow):
 
 def carregar_janela(self):
     self.root.mainloop()
-
-
-if __name__ == '__main__':
-    app = HomeWidgets()
-    carregar_janela(app)

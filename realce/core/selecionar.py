@@ -3,7 +3,7 @@ import os
 from pathlib import Path
 from tkinter import filedialog
 from customtkinter import END
-from realce.infra.functions import separar_vt
+from realce.core.vt import separar_vt
 
 
 class SelectFiles:
