@@ -1,14 +1,14 @@
 import os
 
-import fitz
-
 from openpyxl import load_workbook
 from PyPDF4 import PdfFileMerger
 from PyPDF2 import PdfWriter, PdfReader
 from tkinter import filedialog, messagebox
 
+from realce.core.destacar import BaseRealcePdf
 
-def separar_vt(campo_arquivo_pdf, campo_arquivo_excel, nome_arquivo):
+
+def separar_vt(campo_arquivo_excel, campo_arquivo_pdf):
     caminho_arquivo_excel = campo_arquivo_excel.get()
     if not caminho_arquivo_excel:
         messagebox.showerror("Erro", "Por favor, selecione o arquivo Excel.")
@@ -19,8 +19,6 @@ def separar_vt(campo_arquivo_pdf, campo_arquivo_excel, nome_arquivo):
         messagebox.showerror("Erro", "Por favor, selecione o arquivo PDF.")
         return
 
-    arquivo_pdf = fitz.open(caminho_arquivo_pdf)
-
     pasta_destino = filedialog.askdirectory()
     if not pasta_destino:
         messagebox.showerror("Erro", "Por favor, selecione uma pasta de destino.")
@@ -30,51 +28,23 @@ def separar_vt(campo_arquivo_pdf, campo_arquivo_excel, nome_arquivo):
                               message=f"O diretório escolhido:\n{pasta_destino}.\nDeseja Continuar?"):
 
         arquivo_excel = load_workbook(caminho_arquivo_excel)
-
         planilha = arquivo_excel.active
-
         num_linhas = planilha.max_row
 
-        matriculas_nao_encontradas = []
+        arquivo_pdf, matriculas_nao_encontradas, nome_arquivo = BaseRealcePdf.destacar_pdf(campo_arquivo_excel,
+                                                                                           campo_arquivo_pdf)
 
-        num_funcionarios = 0
-
-        for linha in range(9, num_linhas - 5):
-            numero_matricula = planilha.cell(row=linha, column=2).value
-            numero_matricula = str(numero_matricula)
-
-            nome_matricula = planilha.cell(row=linha, column=3).value
-            nome_matricula = str(nome_matricula).upper().split(" ", 3)
-            nome_matricula = nome_matricula[0] + " " + nome_matricula[1] + " " + nome_matricula[2]
-
-            encontrou_matricula = False
-
-            for pagina in arquivo_pdf:
-                for linha_texto in pagina.get_text().splitlines():
-                    if numero_matricula in linha_texto:
-                        realce = pagina.search_for(numero_matricula, hit_max=1)
-                        num_funcionarios += 1
-                        if realce:
-                            retangulo_realce = fitz.Rect(realce[0][:4])
-                            pagina.add_highlight_annot(retangulo_realce)
-                            encontrou_matricula = True
-                            break
-
-            if not encontrou_matricula and nome_matricula and numero_matricula != "None":
-                matriculas_nao_encontradas.append(numero_matricula + " - " + nome_matricula)
-
-        nome_arquivo_saida = nome_arquivo
         numero_arquivo = 1
-        while os.path.exists(os.path.join(pasta_destino, nome_arquivo_saida)):
-            nome_arquivo_saida = f"{nome_arquivo.strip('.pdf')}({numero_arquivo}).pdf"
+        while os.path.exists(os.path.join(pasta_destino, nome_arquivo)):
+            nome_arquivo = f"{nome_arquivo.strip('.pdf')}({numero_arquivo}).pdf"
             numero_arquivo += 1
 
-        caminho_arquivo_saida = os.path.join(pasta_destino, nome_arquivo_saida)
+        caminho_arquivo_saida = os.path.join(pasta_destino, nome_arquivo)
         arquivo_pdf.save(caminho_arquivo_saida)
 
         arquivo_pdf = PdfReader(caminho_arquivo_saida)
 
-        pasta_destino = pasta_destino + "/Vt Separado"
+        pasta_destino = f'{pasta_destino}/Vt Separado'
         check_folder = os.path.isdir(pasta_destino)
 
         if not check_folder:
@@ -98,13 +68,11 @@ def separar_vt(campo_arquivo_pdf, campo_arquivo_excel, nome_arquivo):
                 with open(output_file, "wb") as f:
                     new_pdf.write(f)
 
-        pasta = f"{pasta_destino}"
-
         pdf_mesclado = PdfFileMerger()
         pdfs_encontrados = False
-        for arquivo in os.listdir(pasta):
+        for arquivo in os.listdir(pasta_destino):
             if arquivo.lower().endswith(".pdf"):
-                caminho_arquivo = os.path.join(pasta, arquivo)
+                caminho_arquivo = os.path.join(pasta_destino, arquivo)
                 with open(caminho_arquivo, 'rb') as f:
                     pdf_mesclado.append(f)
                 pdfs_encontrados = True

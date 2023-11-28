@@ -3,7 +3,6 @@ import os
 from pathlib import Path
 from tkinter import filedialog
 from customtkinter import END
-from realce.core.vt import separar_vt
 
 
 class SelectFiles:
@@ -31,10 +30,6 @@ class SelectFiles:
         campo_arquivo_pdf.delete(0, END)
         campo_arquivo_pdf.insert(0, caminho_arquivo)
         SelectFiles.nome_arquivo = os.path.basename(caminho_arquivo)
-
-    @staticmethod
-    def separar_vt(campo_arquivo_excel, campo_arquivo_pdf):
-        separar_vt(campo_arquivo_pdf, campo_arquivo_excel, SelectFiles.nome_arquivo)
 
     @staticmethod
     def guardar_nome():

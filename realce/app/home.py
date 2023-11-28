@@ -1,5 +1,6 @@
 from realce.app.info import SegundaJanela
 from realce.infra.helper import resource_path
+from realce.core.vt import separar_vt
 from realce.core.selecionar import SelectFiles
 from realce.core.salvar import salvar_para_pasta_padrao, salvar_para_pasta_selecionada_pelo_usuario
 
@@ -105,8 +106,7 @@ class HomeWidgets(HomeWindow):
 
     def button_separar_vts(self, frame_salvar_e_info):
         separar_vts = CTkButton(frame_salvar_e_info, text="Separar PDFs por Matrícula",
-                                command=lambda: SelectFiles.separar_vt(self.campo_arquivo_excel,
-                                                                       self.campo_arquivo_pdf))
+                                command=lambda: separar_vt(self.campo_arquivo_excel, self.campo_arquivo_pdf))
         separar_vts.grid(row=1, column=0, sticky=EW, padx=3, pady=10, columnspan=2)
         return separar_vts
 

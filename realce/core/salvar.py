@@ -19,7 +19,7 @@ def salvar_para_pasta_padrao(campo_arquivo_excel, campo_arquivo_pdf):
         tratar_erro_excel(caminho_arquivo_excel)
 
         os.makedirs(pasta_destino, exist_ok=True)
-        RealceMatriculas(pasta_destino, campo_arquivo_excel, campo_arquivo_pdf)
+        RealceMatriculas.pdf(pasta_destino, campo_arquivo_excel, campo_arquivo_pdf)
     except (ErroExcel, ErroPdf) as e:
         messagebox.showerror("Erro", str(e))
 
@@ -34,4 +34,4 @@ def salvar_para_pasta_selecionada_pelo_usuario(campo_arquivo_excel, campo_arquiv
     pasta_destino = filedialog.askdirectory()
     if not pasta_destino:
         return
-    RealceMatriculas(pasta_destino, campo_arquivo_excel, campo_arquivo_pdf)
+    RealceMatriculas.pdf(pasta_destino, campo_arquivo_excel, campo_arquivo_pdf)

@@ -8,14 +8,10 @@ from tkinter import messagebox
 from realce.core.selecionar import SelectFiles
 
 
-class RealceMatriculas:
-    caminho_arquivo_saida: str | Path
-
-    def __init__(self, pasta_destino, campo_arquivo_excel, campo_arquivo_pdf):
-        self.destacar_pdf(pasta_destino, campo_arquivo_excel, campo_arquivo_pdf)
+class BaseRealcePdf:
 
     @staticmethod
-    def destacar_pdf(pasta_destino, campo_arquivo_excel, campo_arquivo_pdf):
+    def destacar_pdf(campo_arquivo_excel, campo_arquivo_pdf):
         nome_arquivo = SelectFiles.guardar_nome()
         caminho_arquivo_excel = campo_arquivo_excel.get()
         caminho_arquivo_pdf = campo_arquivo_pdf.get()
@@ -43,6 +39,17 @@ class RealceMatriculas:
 
             if not encontrou_matricula and nome_matricula and numero_matricula != "None":
                 matriculas_nao_encontradas.append(f"{numero_matricula} - {nome_matricula}")
+
+        return arquivo_pdf, matriculas_nao_encontradas, nome_arquivo
+
+
+class RealceMatriculas(BaseRealcePdf):
+    caminho_arquivo_saida: str | Path
+
+    @staticmethod
+    def pdf(pasta_destino, campo_arquivo_excel, campo_arquivo_pdf):
+        arquivo_pdf, matriculas_nao_encontradas, nome_arquivo = BaseRealcePdf.destacar_pdf(campo_arquivo_excel,
+                                                                                           campo_arquivo_pdf)
 
         RealceMatriculas.salvar_arquivo_pdf(pasta_destino, nome_arquivo, arquivo_pdf)
         RealceMatriculas.exibir_resultados(matriculas_nao_encontradas)
