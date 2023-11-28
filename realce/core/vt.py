@@ -6,33 +6,30 @@ from PyPDF2 import PdfWriter, PdfReader
 from tkinter import filedialog, messagebox
 
 from realce.core.destacar import BaseRealcePdf
+from realce.infra.error import tratar_erro, tratar_pasta_destino, confirmar_diretorio
 
 
-def separar_vt(campo_arquivo_excel, campo_arquivo_pdf):
-    caminho_arquivo_excel = campo_arquivo_excel.get()
-    if not caminho_arquivo_excel:
-        messagebox.showerror("Erro", "Por favor, selecione o arquivo Excel.")
-        return
+class SepararPDF(BaseRealcePdf):
 
-    caminho_arquivo_pdf = campo_arquivo_pdf.get()
-    if not caminho_arquivo_pdf:
-        messagebox.showerror("Erro", "Por favor, selecione o arquivo PDF.")
-        return
+    @staticmethod
+    def tratamento(campo_arquivo_excel, campo_arquivo_pdf):
+        if tratar_erro(campo_arquivo_excel, campo_arquivo_pdf):
+            return False
 
-    pasta_destino = filedialog.askdirectory()
-    if not pasta_destino:
-        messagebox.showerror("Erro", "Por favor, selecione uma pasta de destino.")
-        return
+        pasta_destino = filedialog.askdirectory()
+        if not tratar_pasta_destino(pasta_destino):
+            if confirmar_diretorio(pasta_destino):
+                return pasta_destino
+        return False
 
-    if messagebox.askokcancel(title="Revise as informações",
-                              message=f"O diretório escolhido:\n{pasta_destino}.\nDeseja Continuar?"):
+    @staticmethod
+    def separar_vt(campo_arquivo_excel, campo_arquivo_pdf):
+        pasta_destino = SepararPDF.tratamento(campo_arquivo_excel.get(), campo_arquivo_pdf.get())
 
-        arquivo_excel = load_workbook(caminho_arquivo_excel)
-        planilha = arquivo_excel.active
+        arquivo_pdf, matriculas_nao_encontradas, nome_arquivo = SepararPDF.destacar_pdf(campo_arquivo_excel,
+                                                                                        campo_arquivo_pdf)
+        planilha = load_workbook(campo_arquivo_excel.get()).active
         num_linhas = planilha.max_row
-
-        arquivo_pdf, matriculas_nao_encontradas, nome_arquivo = BaseRealcePdf.destacar_pdf(campo_arquivo_excel,
-                                                                                           campo_arquivo_pdf)
 
         numero_arquivo = 1
         while os.path.exists(os.path.join(pasta_destino, nome_arquivo)):
