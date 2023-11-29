@@ -64,6 +64,30 @@ class BaseRealcePdf:
 
         return nome_arquivo
 
+    @staticmethod
+    def exibir_mensagem_conclusao(pasta_destino, matriculas_nao_encontradas):
+        messagebox.showinfo("Concluído", f"O Arquivo final foi salvo em:\n{pasta_destino}")
+
+        if matriculas_nao_encontradas:
+            nome_arquivo_txt = "Matrículas não encontradas.txt"
+            numero_arquivo_txt = 1
+
+            while os.path.exists(os.path.join(pasta_destino, nome_arquivo_txt)):
+                nome_arquivo_txt = f"Matrículas não encontradas({numero_arquivo_txt}).txt"
+                numero_arquivo_txt += 1
+
+            caminho_arquivo_txt = os.path.join(pasta_destino, nome_arquivo_txt)
+
+            with open(caminho_arquivo_txt, "w") as arquivo_txt:
+                for matricula in matriculas_nao_encontradas:
+                    arquivo_txt.write(matricula + "\n")
+
+            messagebox.showwarning(
+                "Matrículas não encontradas",
+                f"Não foi possível encontrar algumas matrículas no arquivo PDF selecionado.\n\nFoi gerado um "
+                f"arquivo de texto que contém as matrículas não encontradas, salvo em:\n{caminho_arquivo_txt}",
+            )
+
 
 class RealceMatriculas(BaseRealcePdf):
 
@@ -73,33 +97,4 @@ class RealceMatriculas(BaseRealcePdf):
                                                                                            campo_arquivo_pdf)
 
         RealceMatriculas.salvar_arquivo_pdf(pasta_destino, nome_arquivo, arquivo_pdf)
-        RealceMatriculas.exibir_resultados(matriculas_nao_encontradas)
-
-    @staticmethod
-    def exibir_resultados(matriculas_nao_encontradas):
-        messagebox.showinfo("Concluído", f"O PDF editado foi salvo em:\n{RealceMatriculas.caminho_arquivo_saida}")
-
-        if matriculas_nao_encontradas:
-            RealceMatriculas.salvar_matriculas_nao_encontradas(matriculas_nao_encontradas,
-                                                               RealceMatriculas.caminho_arquivo_saida)
-
-    @staticmethod
-    def salvar_matriculas_nao_encontradas(matriculas_nao_encontradas, pasta_destino):
-        nome_arquivo_txt = "Matrículas não encontradas.txt"
-        numero_arquivo_txt = 1
-
-        while os.path.exists(os.path.join(pasta_destino, nome_arquivo_txt)):
-            nome_arquivo_txt = f"Matrículas não encontradas({numero_arquivo_txt}).txt"
-            numero_arquivo_txt += 1
-
-        caminho_arquivo_txt = os.path.join(os.path.dirname(pasta_destino), nome_arquivo_txt)
-
-        with open(caminho_arquivo_txt, "w") as arquivo_txt:
-            for matricula in matriculas_nao_encontradas:
-                arquivo_txt.write(matricula + "\n")
-
-        messagebox.showwarning(
-            "Matrículas não encontradas",
-            f"Não foi possível encontrar algumas matrículas no arquivo PDF selecionado.\n\nFoi gerado um "
-            f"arquivo de texto que contém as matrículas não encontradas, salvo em:\n{caminho_arquivo_txt}",
-        )
+        RealceMatriculas.exibir_mensagem_conclusao(pasta_destino, matriculas_nao_encontradas)
