@@ -1,12 +1,11 @@
 import os
 
-from pathlib import Path
 from tkinter import filedialog
 from customtkinter import END
 
 
 class SelectFiles:
-    nome_arquivo: str | Path
+    nome_arquivo: str
 
     def __init__(self, campo_arquivo_excel, campo_arquivo_pdf):
         self.selecionar_arquivo_excel(campo_arquivo_excel)

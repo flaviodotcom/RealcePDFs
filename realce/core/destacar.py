@@ -2,7 +2,6 @@ import os
 
 import fitz
 import openpyxl
-from pathlib import Path
 from tkinter import messagebox
 
 from realce.core.selecionar import SelectFiles
@@ -44,7 +43,7 @@ class BaseRealcePdf:
 
 
 class RealceMatriculas(BaseRealcePdf):
-    caminho_arquivo_saida: str | Path
+    caminho_arquivo_saida: str
 
     @staticmethod
     def pdf(pasta_destino, campo_arquivo_excel, campo_arquivo_pdf):
@@ -65,6 +64,8 @@ class RealceMatriculas(BaseRealcePdf):
 
         RealceMatriculas.caminho_arquivo_saida = os.path.join(pasta_destino, nome_arquivo_saida)
         arquivo_pdf.save(RealceMatriculas.caminho_arquivo_saida)
+
+        return nome_arquivo
 
     @staticmethod
     def exibir_resultados(matriculas_nao_encontradas):
