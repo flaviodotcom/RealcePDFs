@@ -1,4 +1,5 @@
 import os
+import re
 
 import fitz
 import openpyxl
@@ -8,6 +9,7 @@ from realce.core.selecionar import SelectFiles
 
 
 class BaseRealcePdf:
+    caminho_arquivo_saida: str
 
     @staticmethod
     def destacar_pdf(campo_arquivo_excel, campo_arquivo_pdf):
@@ -41,9 +43,29 @@ class BaseRealcePdf:
 
         return arquivo_pdf, matriculas_nao_encontradas, nome_arquivo
 
+    @staticmethod
+    def salvar_arquivo_pdf(pasta_destino, nome_arquivo, arquivo_pdf):
+        numero_arquivo = 1
+
+        while os.path.exists(os.path.join(pasta_destino, nome_arquivo)):
+            match = re.search(r'\((\d+)\)', nome_arquivo)
+
+            if match:
+                numero_arquivo_existente = int(match.group(1))
+                novo_numero_arquivo = numero_arquivo_existente + 1
+                nome_arquivo = re.sub(r'\((\d+)\)', f'({novo_numero_arquivo})', nome_arquivo)
+            else:
+                nome_arquivo = f"{os.path.splitext(nome_arquivo)[0]}({numero_arquivo}).pdf"
+
+            numero_arquivo += 1
+
+        BaseRealcePdf.caminho_arquivo_saida = os.path.join(pasta_destino, nome_arquivo)
+        arquivo_pdf.save(BaseRealcePdf.caminho_arquivo_saida)
+
+        return nome_arquivo
+
 
 class RealceMatriculas(BaseRealcePdf):
-    caminho_arquivo_saida: str
 
     @staticmethod
     def pdf(pasta_destino, campo_arquivo_excel, campo_arquivo_pdf):
@@ -52,20 +74,6 @@ class RealceMatriculas(BaseRealcePdf):
 
         RealceMatriculas.salvar_arquivo_pdf(pasta_destino, nome_arquivo, arquivo_pdf)
         RealceMatriculas.exibir_resultados(matriculas_nao_encontradas)
-
-    @staticmethod
-    def salvar_arquivo_pdf(pasta_destino, nome_arquivo, arquivo_pdf):
-        nome_arquivo_saida = nome_arquivo
-        numero_arquivo = 1
-
-        while os.path.exists(os.path.join(pasta_destino, nome_arquivo_saida)):
-            nome_arquivo_saida = f"{os.path.splitext(nome_arquivo)[0]}({numero_arquivo}).pdf"
-            numero_arquivo += 1
-
-        RealceMatriculas.caminho_arquivo_saida = os.path.join(pasta_destino, nome_arquivo_saida)
-        arquivo_pdf.save(RealceMatriculas.caminho_arquivo_saida)
-
-        return nome_arquivo
 
     @staticmethod
     def exibir_resultados(matriculas_nao_encontradas):

@@ -5,7 +5,7 @@ from PyPDF4 import PdfFileMerger
 from PyPDF2 import PdfWriter, PdfReader
 from tkinter import filedialog, messagebox
 
-from realce.core.destacar import BaseRealcePdf, RealceMatriculas
+from realce.core.destacar import BaseRealcePdf
 from realce.infra.error import tratar_erro, tratar_pasta_destino, confirmar_diretorio
 
 
@@ -17,9 +17,7 @@ class SepararPDF(BaseRealcePdf):
         arquivo_pdf, matriculas_nao_encontradas, nome_arquivo = SepararPDF.destacar_pdf(campo_arquivo_excel,
                                                                                         campo_arquivo_pdf)
 
-        nome_arquivo = RealceMatriculas.salvar_arquivo_pdf(pasta_destino, nome_arquivo, arquivo_pdf)
-        # nome_arquivo = SepararPDF.nome_arquivo_final(pasta_destino, nome_arquivo)
-        # SepararPDF.salvar_arquivo_pdf(arquivo_pdf, pasta_destino, nome_arquivo)
+        nome_arquivo = SepararPDF.salvar_arquivo_pdf(pasta_destino, nome_arquivo, arquivo_pdf)
 
         arquivo_pdf = PdfReader(os.path.join(pasta_destino, nome_arquivo))
         pasta_destino = SepararPDF.criar_pasta_vt_separado(pasta_destino)
@@ -36,19 +34,6 @@ class SepararPDF(BaseRealcePdf):
         planilha = load_workbook(campo_arquivo_excel.get()).active
         return planilha.max_row
 
-    # @staticmethod
-    # def nome_arquivo_final(pasta_destino, nome_arquivo):
-    #     numero_arquivo = 1
-    #     while os.path.exists(os.path.join(pasta_destino, nome_arquivo)):
-    #         nome_arquivo = f"{os.path.splitext(nome_arquivo)[0]}({numero_arquivo}).pdf"
-    #         numero_arquivo += 1
-    #     return nome_arquivo
-    #
-    # @staticmethod
-    # def salvar_arquivo_pdf(arquivo_pdf, pasta_destino, nome_arquivo):
-    #     caminho_arquivo_saida = os.path.join(pasta_destino, nome_arquivo)
-    #     arquivo_pdf.save(caminho_arquivo_saida)
-
     @staticmethod
     def criar_pasta_vt_separado(pasta_destino):
         pasta_destino = f'{pasta_destino}/Vt Separado'
@@ -60,6 +45,7 @@ class SepararPDF(BaseRealcePdf):
     @staticmethod
     def separar_pdf_por_matricula(arquivo_pdf, campo_arquivo_excel, pasta_destino):
         planilha = load_workbook(campo_arquivo_excel.get()).active
+
         for linha in range(1, SepararPDF.get_num_linhas(campo_arquivo_excel) + 1):
             numero_matricula = str(planilha.cell(row=linha, column=2).value)
             nome_func = str(planilha.cell(row=linha, column=3).value)
