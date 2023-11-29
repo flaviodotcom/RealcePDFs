@@ -1,5 +1,5 @@
-import fitz
-import openpyxl
+import os
+
 from tkinter import messagebox
 
 
@@ -11,11 +11,11 @@ class ErroExcel(Exception):
     pass
 
 
-def tratar_erro(caminho_arquivo_excel, caminho_arquivo_pdf):
+def existe_erro(caminho_arquivo_excel, caminho_arquivo_pdf):
     try:
         mensagem_erro = (
             "Por favor, selecione o arquivo Excel e o arquivo PDF."
-            if not caminho_arquivo_excel and not caminho_arquivo_pdf
+            if not (caminho_arquivo_excel and caminho_arquivo_pdf)
             else "Por favor, selecione o arquivo PDF."
             if not caminho_arquivo_pdf
             else "Por favor, selecione o arquivo Excel."
@@ -28,20 +28,20 @@ def tratar_erro(caminho_arquivo_excel, caminho_arquivo_pdf):
             return True
         return False
 
-    except Exception as e:
+    except (ErroExcel, ErroPdf) as e:
         messagebox.showerror("Erro", f"Ocorreu um erro: {str(e)}")
         return True
 
 
-def tratar_erro_pdf(caminho_arquivo_pdf):
-    try:
-        fitz.open(caminho_arquivo_pdf)
-    except Exception as e:
-        raise ErroPdf(f"Erro no arquivo PDF: {str(e)}")
+def tratar_pasta_destino(pasta_destino):
+    if not (pasta_destino and os.path.exists(pasta_destino)):
+        messagebox.showerror("Erro", "Selecione uma pasta de destino válida.")
+        return True
+    return False
 
 
-def tratar_erro_excel(caminho_arquivo_excel):
-    try:
-        openpyxl.load_workbook(caminho_arquivo_excel)
-    except Exception as e:
-        raise ErroExcel(f"Erro no arquivo Excel: {str(e)}")
+def confirmar_diretorio(pasta_destino):
+    return messagebox.askokcancel(
+        title="Revise as informações",
+        message=f"O diretório escolhido:\n{pasta_destino}.\nDeseja Continuar?"
+    )
