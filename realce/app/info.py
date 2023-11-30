@@ -1,4 +1,4 @@
-import customtkinter as ctk
+from customtkinter import CTk, CTkLabel, CTkFrame
 
 from realce.infra.helper import resource_path
 
@@ -10,14 +10,14 @@ class SegundaJanela:
 
     def abrir_janela(self):
         if not self.aberta:
-            self.sec_window = ctk.CTk()
+            self.sec_window = CTk()
             self.sec_window.title("Como Funciona?")
             self.sec_window.resizable(False, False)
             self.sec_window.config(padx=10, pady=10)
             self.sec_window.protocol("WM_DELETE_WINDOW", self.fechar_seg_janela)
             self.sec_window.iconbitmap(resource_path("resources/images/vigarista.ico"))
 
-            painel_informacoes = ctk.CTkFrame(self.sec_window)
+            painel_informacoes = CTkFrame(self.sec_window)
             painel_informacoes.pack()
 
             texto_informacoes = (
@@ -52,7 +52,7 @@ class SegundaJanela:
             tamanho_da_fonte = 14
             fonte_personalizada = ("Helvetica", tamanho_da_fonte)
 
-            rotulo_informacoes = ctk.CTkLabel(
+            rotulo_informacoes = CTkLabel(
                 painel_informacoes,
                 text=texto_informacoes,
                 wraplength=505,

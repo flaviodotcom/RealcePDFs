@@ -12,6 +12,7 @@ class HomeWindow:
 
     def __init__(self):
         self.appearance()
+        self.shortcuts()
 
     def appearance(self):
         set_appearance_mode("dark")
@@ -39,6 +40,12 @@ class HomeWindow:
     def abrir_info():
         info = SegundaJanela()
         info.abrir_janela()
+
+    def shortcuts(self):
+        def close(event=None):
+            self.root.destroy()
+            return event
+        self.root.bind('<Control-w>', close)
 
     def fechar(self):
         self.root.destroy()

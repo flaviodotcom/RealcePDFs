@@ -1,5 +1,4 @@
 import os
-
 from tkinter import messagebox
 
 
@@ -16,10 +15,10 @@ def existe_erro(caminho_arquivo_excel, caminho_arquivo_pdf):
         mensagem_erro = (
             "Por favor, selecione o arquivo Excel e o arquivo PDF."
             if not (caminho_arquivo_excel and caminho_arquivo_pdf)
-            else "Por favor, selecione o arquivo PDF."
-            if not caminho_arquivo_pdf
-            else "Por favor, selecione o arquivo Excel."
-            if not caminho_arquivo_excel
+            else "Por favor, verifique o caminho do arquivo PDF."
+            if not (caminho_arquivo_pdf and os.path.isfile(caminho_arquivo_pdf))
+            else "Por favor, verifique o caminho do arquivo Excel."
+            if not (caminho_arquivo_excel and os.path.isfile(caminho_arquivo_excel))
             else None
         )
 
