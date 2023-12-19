@@ -4,7 +4,7 @@ import platform
 from PySide6.QtCore import Slot, Qt, QSize
 from PySide6.QtGui import QAction, QActionGroup, QIcon
 from PySide6.QtWidgets import QMainWindow, QApplication, QWidget, QVBoxLayout, QMenu, QHBoxLayout, QFormLayout, \
-    QGroupBox, QPushButton, QLineEdit
+    QGroupBox, QPushButton, QLineEdit, QStatusBar
 
 from qdarktheme import setup_theme
 
@@ -18,7 +18,7 @@ class MainHome(QMainWindow):
         self.theme_is_w10 = self.init_theme_menu()
         self.setWindowTitle('RealcePDFs')
         self.setWindowIcon(QIcon(resource_path('resources/images/Cookie-Monster.ico')))
-        self.setMinimumSize(QSize(620, 400))
+        self.setMinimumSize(QSize(620, 300))
 
         self.build_layout()
         self.build_menu_bar()
@@ -66,6 +66,8 @@ class MainHome(QMainWindow):
 
         vertical_layout = QVBoxLayout()
         vertical_layout.addWidget(self.build_form())
+        vertical_layout.addWidget(self.build_separar_vts())
+        vertical_layout.addWidget(self.build_log_output())
         vertical_layout.setSpacing(25)
 
         main_layout = QHBoxLayout()
@@ -85,8 +87,8 @@ class MainHome(QMainWindow):
         excel_file, pdf_file = QLineEdit(), QLineEdit()
         salvar, salvar_como = QPushButton("Salvar"), QPushButton("Salvar Como")
 
-        acoes_form.addRow('Arquivo Excel', excel_file)
-        acoes_form.addRow('Arquivo PDF', pdf_file)
+        acoes_form.addRow('Arquivo Excel:', excel_file)
+        acoes_form.addRow('Arquivo PDF:', pdf_file)
         layout = QHBoxLayout()
         layout.addWidget(salvar)
         layout.addWidget(salvar_como)
@@ -96,6 +98,26 @@ class MainHome(QMainWindow):
         form_group.setLayout(acoes_form)
 
         return form_group
+
+    @staticmethod
+    def build_separar_vts():
+        separar_vts_form = QFormLayout()
+        separar_vts_button = QPushButton("Separar PDFs")
+
+        layout_vt = QHBoxLayout()
+        layout_vt.addWidget(separar_vts_button)
+        separar_vts_form.addRow(layout_vt)
+        form_group_vt = QGroupBox("Vale Transporte")
+        form_group_vt.setLayout(separar_vts_form)
+
+        return form_group_vt
+
+    @staticmethod
+    def build_log_output():
+        bar = QStatusBar()
+        bar.showMessage("Olá!", 5000)
+        bar.setStyleSheet("font-weight: bold; border: 1px solid;")
+        return bar
 
     @staticmethod
     def abrir_info():
