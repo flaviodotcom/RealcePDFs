@@ -87,8 +87,17 @@ class MainHome(QMainWindow):
         excel_file, pdf_file = QLineEdit(), QLineEdit()
         salvar, salvar_como = QPushButton("Salvar"), QPushButton("Salvar Como")
 
-        acoes_form.addRow('Arquivo Excel:', excel_file)
-        acoes_form.addRow('Arquivo PDF:', pdf_file)
+        encontrar_excel, encontrar_pdf = QPushButton("Escolher arquivo"), QPushButton("Escolher arquivo")
+        excel_layout, pdf_layout = QHBoxLayout(), QHBoxLayout()
+
+        excel_layout.addWidget(excel_file)
+        excel_layout.addWidget(encontrar_excel)
+        acoes_form.addRow('Arquivo Excel:', excel_layout)
+
+        pdf_layout.addWidget(pdf_file)
+        pdf_layout.addWidget(encontrar_pdf)
+        acoes_form.addRow('Arquivo PDF:', pdf_layout)
+
         layout = QHBoxLayout()
         layout.addWidget(salvar)
         layout.addWidget(salvar_como)
