@@ -49,7 +49,7 @@ Requisitos
 Este programa requer a seleção de um arquivo Excel (.xlsx, .csv ou .xls) e um arquivo PDF para funcionar corretamente.
 
 ## Como Funciona?
-O programa utiliza bibliotecas como PyPDF2, PyPDF4, openpyxl e customtkinter para realizar as seguintes tarefas:
+O programa utiliza bibliotecas como PyPDF2, PyPDF4 e openpyxl para realizar as seguintes tarefas:
 
 Abre o arquivo PDF e a planilha do Excel selecionados.
 Percorre as páginas do PDF em busca das matrículas e realça os números encontrados.
