@@ -1,4 +1,3 @@
-from realce.app.home import HomeWidgets, carregar_janela
+from realce.app.pyside.home import RunHome
 
-app = HomeWidgets()
-carregar_janela(app)
+app = RunHome()

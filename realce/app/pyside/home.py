@@ -149,8 +149,9 @@ class MainHome(QMainWindow):
             self.tutorial.show()
 
 
-if __name__ == "__main__":
-    app = QApplication(sys.argv)
-    main_home = MainHome()
-    main_home.show()
-    sys.exit(app.exec())
+class RunHome:
+    def __init__(self):
+        app = QApplication(sys.argv)
+        main_home = MainHome()
+        main_home.show()
+        sys.exit(app.exec())
