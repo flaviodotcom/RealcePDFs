@@ -10,9 +10,15 @@ from qdarktheme import setup_theme
 
 from realce.app.pyside.info import Tutorial
 from realce.infra.helper import resource_path
+from realce.core.vt import SepararPDF
+from realce.core.selecionar import SelectFiles
+from realce.core.salvar import salvar_para_pasta_padrao, salvar_para_pasta_selecionada
 
 
 class MainHome(QMainWindow):
+    excel_file: QLineEdit
+    pdf_file: QLineEdit
+    tutorial = None
 
     def __init__(self):
         super().__init__()
@@ -21,7 +27,6 @@ class MainHome(QMainWindow):
         self.setWindowIcon(QIcon(resource_path('resources/images/Cookie-Monster.ico')))
         self.setFixedSize(QSize(620, 300))
 
-        self.tutorial = None
         self.build_layout()
         self.build_menu_bar()
 
@@ -78,25 +83,22 @@ class MainHome(QMainWindow):
         base_layout.addLayout(main_layout)
         base_layout.setSpacing(15)
 
-    @staticmethod
-    def build_form():
+    def build_form(self):
         acoes_form = QFormLayout()
         acoes_form.setRowWrapPolicy(QFormLayout.DontWrapRows)
         acoes_form.setFieldGrowthPolicy(QFormLayout.ExpandingFieldsGrow)
         acoes_form.setLabelAlignment(Qt.AlignmentFlag.AlignLeft)
         acoes_form.setSpacing(15)
 
-        excel_file, pdf_file = QLineEdit(), QLineEdit()
-        salvar, salvar_como = QPushButton("Salvar"), QPushButton("Salvar Como")
+        self.excel_file, self.pdf_file = QLineEdit(), QLineEdit()
+        salvar, salvar_como, encontrar_excel, encontrar_pdf = self.load_buttons()
 
-        encontrar_excel, encontrar_pdf = QPushButton("Escolher arquivo"), QPushButton("Escolher arquivo")
         excel_layout, pdf_layout = QHBoxLayout(), QHBoxLayout()
-
-        excel_layout.addWidget(excel_file)
+        excel_layout.addWidget(self.excel_file)
         excel_layout.addWidget(encontrar_excel)
         acoes_form.addRow('Arquivo Excel:', excel_layout)
 
-        pdf_layout.addWidget(pdf_file)
+        pdf_layout.addWidget(self.pdf_file)
         pdf_layout.addWidget(encontrar_pdf)
         acoes_form.addRow('Arquivo PDF:', pdf_layout)
 
@@ -110,10 +112,10 @@ class MainHome(QMainWindow):
 
         return form_group
 
-    @staticmethod
-    def build_separar_vts():
+    def build_separar_vts(self):
         separar_vts_form = QFormLayout()
         separar_vts_button = QPushButton("Separar PDFs")
+        separar_vts_button.clicked.connect(lambda: SepararPDF.separar_vt(self.excel_file, self.pdf_file))
 
         layout_vt = QHBoxLayout()
         layout_vt.addWidget(separar_vts_button)
@@ -129,6 +131,17 @@ class MainHome(QMainWindow):
         bar.showMessage("Olá!", 5000)
         bar.setStyleSheet("font-weight: bold; border: 1px solid;")
         return bar
+
+    def load_buttons(self):
+        salvar, salvar_como = QPushButton("Salvar"), QPushButton("Salvar Como")
+        salvar.clicked.connect(lambda: salvar_para_pasta_padrao(self.excel_file, self.pdf_file))
+        salvar_como.clicked.connect(lambda: salvar_para_pasta_selecionada(self.excel_file, self.pdf_file))
+
+        encontrar_excel, encontrar_pdf = QPushButton("Escolher arquivo"), QPushButton("Escolher arquivo")
+        encontrar_excel.clicked.connect(lambda: SelectFiles.selecionar_arquivo_excel(self.excel_file))
+        encontrar_pdf.clicked.connect(lambda: SelectFiles.selecionar_arquivo_pdf(self.pdf_file))
+
+        return salvar, salvar_como, encontrar_excel, encontrar_pdf
 
     def abrir_info(self):
         if not (self.tutorial and self.tutorial.is_visible()):

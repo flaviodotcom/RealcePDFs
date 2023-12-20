@@ -2,7 +2,7 @@ from realce.app.info import SegundaJanela
 from realce.infra.helper import resource_path
 from realce.core.vt import SepararPDF
 from realce.core.selecionar import SelectFiles
-from realce.core.salvar import salvar_para_pasta_padrao, salvar_para_pasta_selecionada_pelo_usuario
+from realce.core.salvar import salvar_para_pasta_padrao, salvar_para_pasta_selecionada
 
 from customtkinter import set_appearance_mode, set_default_color_theme, CTk, CTkFrame, CTkLabel, CTkEntry, CTkButton, EW
 
@@ -45,6 +45,7 @@ class HomeWindow:
         def close(event=None):
             self.root.destroy()
             return event
+
         self.root.bind('<Control-w>', close)
 
     def fechar(self):
@@ -104,7 +105,7 @@ class HomeWidgets(HomeWindow):
         botao_destacar.grid(row=0, column=0, sticky=EW, padx=3)
 
         botao_destacar_em_outra_pasta = CTkButton(frame_salvar_e_info, text="Salvar Como",
-                                                  command=lambda: salvar_para_pasta_selecionada_pelo_usuario(
+                                                  command=lambda: salvar_para_pasta_selecionada(
                                                       self.campo_arquivo_excel, self.campo_arquivo_pdf))
         botao_destacar_em_outra_pasta.grid(row=0, column=1, sticky=EW, padx=3)
 

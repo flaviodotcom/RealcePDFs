@@ -1,7 +1,6 @@
 import os
 
 from tkinter import filedialog
-from customtkinter import END
 
 
 class SelectFiles:
@@ -20,14 +19,14 @@ class SelectFiles:
                 ("Arquivos Excel 97-2003", "*.xls"),
             ]
         )
-        campo_arquivo_excel.delete(0, END)
-        campo_arquivo_excel.insert(0, caminho_arquivo)
+        campo_arquivo_excel.clear()
+        campo_arquivo_excel.insert(caminho_arquivo)
 
     @staticmethod
     def selecionar_arquivo_pdf(campo_arquivo_pdf):
         caminho_arquivo = filedialog.askopenfilename(filetypes=[("Arquivos PDF", "*.pdf")])
-        campo_arquivo_pdf.delete(0, END)
-        campo_arquivo_pdf.insert(0, caminho_arquivo)
+        campo_arquivo_pdf.clear()
+        campo_arquivo_pdf.insert(caminho_arquivo)
         SelectFiles.nome_arquivo = os.path.basename(caminho_arquivo)
 
     @staticmethod

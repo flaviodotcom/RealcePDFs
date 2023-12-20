@@ -13,7 +13,7 @@ class SepararPDF(BaseRealcePdf):
 
     @staticmethod
     def separar_vt(campo_arquivo_excel, campo_arquivo_pdf):
-        pasta_destino = SepararPDF.tratamento(campo_arquivo_excel.get(), campo_arquivo_pdf.get())
+        pasta_destino = SepararPDF.tratamento(campo_arquivo_excel.text(), campo_arquivo_pdf.text())
         arquivo_pdf, matriculas_nao_encontradas, nome_arquivo = SepararPDF.destacar_pdf(campo_arquivo_excel,
                                                                                         campo_arquivo_pdf)
 
@@ -39,7 +39,7 @@ class SepararPDF(BaseRealcePdf):
 
     @staticmethod
     def separar_pdf_por_matricula(arquivo_pdf, campo_arquivo_excel, pasta_destino):
-        planilha = load_workbook(campo_arquivo_excel.get()).active
+        planilha = load_workbook(campo_arquivo_excel.text()).active
 
         for linha in range(1, planilha.max_row + 1):
             numero_matricula = str(planilha.cell(row=linha, column=2).value)

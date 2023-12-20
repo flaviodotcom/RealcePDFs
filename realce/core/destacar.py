@@ -14,8 +14,8 @@ class BaseRealcePdf:
     @staticmethod
     def destacar_pdf(campo_arquivo_excel, campo_arquivo_pdf):
         nome_arquivo = SelectFiles.guardar_nome()
-        caminho_arquivo_excel = campo_arquivo_excel.get()
-        caminho_arquivo_pdf = campo_arquivo_pdf.get()
+        caminho_arquivo_excel = campo_arquivo_excel.text()
+        caminho_arquivo_pdf = campo_arquivo_pdf.text()
 
         arquivo_excel = openpyxl.load_workbook(caminho_arquivo_excel)
         arquivo_pdf = fitz.open(caminho_arquivo_pdf)

@@ -42,5 +42,5 @@ def tratar_pasta_destino(pasta_destino):
 def confirmar_diretorio(pasta_destino):
     return messagebox.askokcancel(
         title="Revise as informações",
-        message=f"O diretório escolhido:\n{pasta_destino}.\nDeseja Continuar?"
+        message=f"Diretório escolhido:\n{pasta_destino}.\nDeseja Continuar?"
     )
