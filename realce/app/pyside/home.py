@@ -8,18 +8,20 @@ from PySide6.QtWidgets import QMainWindow, QApplication, QWidget, QVBoxLayout, Q
 
 from qdarktheme import setup_theme
 
-from realce.app.info import SegundaJanela
+from realce.app.pyside.info import Tutorial
 from realce.infra.helper import resource_path
 
 
 class MainHome(QMainWindow):
+
     def __init__(self):
         super().__init__()
         self.theme_is_w10 = self.init_theme_menu()
         self.setWindowTitle('RealcePDFs')
         self.setWindowIcon(QIcon(resource_path('resources/images/Cookie-Monster.ico')))
-        self.setMinimumSize(QSize(620, 300))
+        self.setFixedSize(QSize(620, 300))
 
+        self.tutorial = None
         self.build_layout()
         self.build_menu_bar()
 
@@ -128,10 +130,10 @@ class MainHome(QMainWindow):
         bar.setStyleSheet("font-weight: bold; border: 1px solid;")
         return bar
 
-    @staticmethod
-    def abrir_info():
-        info = SegundaJanela()
-        info.abrir_janela()
+    def abrir_info(self):
+        if not (self.tutorial and self.tutorial.is_visible()):
+            self.tutorial = Tutorial()
+            self.tutorial.show()
 
 
 if __name__ == "__main__":
