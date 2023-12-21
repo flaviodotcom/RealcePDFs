@@ -5,14 +5,14 @@ from PySide6.QtCore import Slot, Qt, QSize
 from PySide6.QtGui import QAction, QActionGroup, QIcon
 from PySide6.QtWidgets import QMainWindow, QApplication, QWidget, QVBoxLayout, QMenu, QHBoxLayout, QFormLayout, \
     QGroupBox, QPushButton, QLineEdit, QStatusBar
-
 from qdarktheme import setup_theme
 
+from realce.app.pyside import atalhos
 from realce.app.pyside.info import Tutorial
-from realce.infra.helper import resource_path
-from realce.core.vt import SepararPDF
-from realce.core.selecionar import SelectFiles
 from realce.core.salvar import salvar_para_pasta_padrao, salvar_para_pasta_selecionada
+from realce.core.selecionar import SelectFiles
+from realce.core.vt import SepararPDF
+from realce.infra.helper import resource_path
 
 
 class MainHome(QMainWindow):
@@ -27,8 +27,9 @@ class MainHome(QMainWindow):
         self.setWindowIcon(QIcon(resource_path('resources/images/Cookie-Monster.ico')))
         self.setFixedSize(QSize(620, 300))
 
-        self.build_layout()
         self.build_menu_bar()
+        self.build_layout()
+        atalhos(self)
 
     def init_theme_menu(self):
         so = dict(Linux=False, Darwin=False)
@@ -88,7 +89,7 @@ class MainHome(QMainWindow):
         acoes_form.setRowWrapPolicy(QFormLayout.DontWrapRows)
         acoes_form.setFieldGrowthPolicy(QFormLayout.ExpandingFieldsGrow)
         acoes_form.setLabelAlignment(Qt.AlignmentFlag.AlignLeft)
-        acoes_form.setSpacing(15)
+        acoes_form.setSpacing(8)
 
         self.excel_file, self.pdf_file = QLineEdit(), QLineEdit()
         salvar, salvar_como, encontrar_excel, encontrar_pdf = self.load_buttons()

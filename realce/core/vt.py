@@ -14,6 +14,9 @@ class SepararPDF(BaseRealcePdf):
     @staticmethod
     def separar_vt(campo_arquivo_excel, campo_arquivo_pdf):
         pasta_destino = SepararPDF.tratamento(campo_arquivo_excel.text(), campo_arquivo_pdf.text())
+        if not pasta_destino:
+            return
+
         arquivo_pdf, matriculas_nao_encontradas, nome_arquivo = SepararPDF.destacar_pdf(campo_arquivo_excel,
                                                                                         campo_arquivo_pdf)
 

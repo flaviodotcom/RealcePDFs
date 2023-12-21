@@ -2,11 +2,7 @@ import os
 from tkinter import messagebox
 
 
-class ErroPdf(Exception):
-    pass
-
-
-class ErroExcel(Exception):
+class TratarErro(Exception):
     pass
 
 
@@ -27,7 +23,7 @@ def existe_erro(caminho_arquivo_excel, caminho_arquivo_pdf):
             return True
         return False
 
-    except (ErroExcel, ErroPdf) as e:
+    except TratarErro as e:
         messagebox.showerror("Erro", f"Ocorreu um erro: {str(e)}")
         return True
 

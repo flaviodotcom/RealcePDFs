@@ -4,6 +4,7 @@ from PySide6.QtCore import Qt
 from PySide6.QtGui import QIcon
 from PySide6.QtWidgets import QMainWindow, QApplication, QWidget, QVBoxLayout, QPushButton, QLabel
 
+from realce.app.pyside import atalhos
 from realce.infra.helper import resource_path
 
 
@@ -16,6 +17,7 @@ class Tutorial(QMainWindow):
         self.setWindowFlag(Qt.WindowType.WindowCloseButtonHint, True)
 
         self.tutorial()
+        atalhos(self)
 
     def tutorial(self):
         central_widget = QWidget(self)
