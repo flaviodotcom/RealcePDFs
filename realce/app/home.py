@@ -7,8 +7,8 @@ from PySide6.QtWidgets import QMainWindow, QApplication, QWidget, QVBoxLayout, Q
     QGroupBox, QPushButton, QLineEdit, QStatusBar
 from qdarktheme import setup_theme
 
-from realce.app.pyside import atalhos
-from realce.app.pyside.info import Tutorial
+from realce.app import atalhos
+from realce.app.info import Tutorial
 from realce.core.salvar import salvar_para_pasta_padrao, salvar_para_pasta_selecionada
 from realce.core.selecionar import SelectFiles
 from realce.core.vt import SepararPDF

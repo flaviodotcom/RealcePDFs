@@ -1,3 +1,3 @@
-from realce.app.pyside.home import RunHome
+from realce.app.home import RunHome
 
 app = RunHome()
