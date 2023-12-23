@@ -12,7 +12,8 @@ Este é um programa executável que permite destacar matrículas de funcionário
 
 ### Configuração de Virtual Environment
 
-Para executar o programa pelo Python, Você pode configurar um ambiente virtual usando `virtualenv`. Siga os passos abaixo:
+Para executar o programa pelo Python, Você pode configurar um ambiente virtual usando `virtualenv`. Siga os passos
+abaixo:
 
 ```bash
 pip install virtualenv
@@ -30,25 +31,37 @@ pip install -r requirements.txt
 ```
 
 ## Executável
-O projeto oferece um arquivo executável, possibilitando a utilização do programa em computadores que não possuem o interpretador Python instalado.  
+
+O projeto oferece um arquivo executável, possibilitando a utilização do programa em computadores que não possuem o
+interpretador Python instalado.
 
 ## Como Usar
-Selecione os Arquivos: Clique nos botões "Selecionar" para escolher os arquivos Excel e PDF correspondentes.
 
-Formato do Arquivo Excel: Certifique-se de que as matrículas estejam na coluna B da planilha. O programa analisará essa coluna em busca das matrículas. Não deve haver outras informações nessa coluna.
+**Selecione os Arquivos**: Clique nos botões "Selecionar" para escolher os arquivos Excel e PDF correspondentes.
 
-Nomes dos Colaboradores: Para identificar as matrículas, o programa usa os nomes dos colaboradores na coluna C da planilha. Mantenha os nomes dos colaboradores nessa coluna.
+**Formato do Arquivo Excel**: Certifique-se de que as matrículas estejam na coluna B da planilha. O programa analisará essa
+coluna em busca das matrículas. Não deve haver outras informações nessa coluna.
 
-Arquivo de Texto: O programa cria um arquivo de texto que lista as matrículas não encontradas, juntamente com os nomes dos colaboradores. Esse arquivo será salvo no mesmo diretório do PDF editado.
+**Nomes dos Colaboradores**: Para identificar as matrículas, o programa usa os nomes dos colaboradores na coluna C da
+planilha. Mantenha os nomes dos colaboradores nessa coluna.
 
-Salvar: Clique no botão "Salvar" para salvar o PDF editado na Área de Trabalho (Desktop), dentro da pasta "BENEFÍCIOS DESTACADOS". Você também pode clicar em "Salvar Como" para escolher um local de armazenamento personalizado.
+**Arquivo de Texto**: O programa cria um arquivo de texto que lista as matrículas não encontradas, juntamente com os nomes
+dos colaboradores. Esse arquivo será salvo no mesmo diretório do PDF editado.
+
+**Salvar**: Clique no botão "Salvar" para salvar o PDF editado na Área de Trabalho (Desktop), dentro da pasta "BENEFÍCIOS
+DESTACADOS". Você também pode clicar em "Salvar Como" para escolher um local de armazenamento personalizado.
 
 ## Funcionalidades Adicionais
-#### Separar PDFs por Matrícula: Este programa também permite separar o PDF em vários arquivos, um para cada matrícula encontrada. Os arquivos serão salvos em uma pasta de sua escolha.
-Requisitos
-Este programa requer a seleção de um arquivo Excel (.xlsx, .csv ou .xls) e um arquivo PDF para funcionar corretamente.
+
+### Separar PDFs por Matrícula
+
+Este programa também permite separar o PDF em vários arquivos, um para cada matrícula encontrada. Os arquivos serão
+salvos em uma pasta de sua escolha.
+
+> Requer a seleção de um arquivo Excel (.xlsx, .csv ou .xls) e um arquivo PDF para funcionar corretamente.
 
 ## Como Funciona?
+
 O programa utiliza bibliotecas como PyPDF2, PyPDF4 e openpyxl para realizar as seguintes tarefas:
 
 Abre o arquivo PDF e a planilha do Excel selecionados.
@@ -59,8 +72,10 @@ Oferece a opção de salvar o PDF em um local personalizado.
 Permite separar o PDF em arquivos individuais para cada matrícula encontrada.
 
 ## Aviso
+
 - Certifique-se de seguir as orientações acima para garantir o funcionamento adequado do programa.
 
 
-- Em alguns casos, a biblioteca `PymuPDF` pode causar alguns problemas de importação. Nesse caso, execute no terminal o comando `pip install --upgrade --force-reinstall pymupdf`
+- Em alguns casos, a biblioteca `PymuPDF` pode causar alguns problemas de importação. Nesse caso, execute no terminal o
+  comando `pip install --upgrade --force-reinstall pymupdf`
 
