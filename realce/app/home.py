@@ -1,4 +1,5 @@
 import sys
+import logging
 import platform
 
 from PySide6.QtCore import Slot, Qt, QSize
@@ -7,12 +8,22 @@ from PySide6.QtWidgets import QMainWindow, QApplication, QWidget, QVBoxLayout, Q
     QGroupBox, QPushButton, QLineEdit, QStatusBar
 from qdarktheme import setup_theme
 
+from realce import RealceLogger
 from realce.app import atalhos
 from realce.app.info import Tutorial
 from realce.core.salvar import salvar_para_pasta_padrao, salvar_para_pasta_selecionada
 from realce.core.selecionar import SelectFiles
 from realce.core.vt import SepararPDF
 from realce.infra.helper import resource_path
+
+
+class GuiHandler(logging.Handler):
+    def __init__(self, output: QStatusBar):
+        super().__init__()
+        self.output = output
+
+    def emit(self, record):
+        self.output.showMessage(record.getMessage(), 10000)
 
 
 class MainHome(QMainWindow):
@@ -27,6 +38,7 @@ class MainHome(QMainWindow):
         self.setWindowIcon(QIcon(resource_path('resources/images/Cookie-Monster.ico')))
         self.setFixedSize(QSize(620, 300))
 
+        self.logger = RealceLogger.get_logger()
         self.build_menu_bar()
         self.build_layout()
         atalhos(self)
@@ -126,11 +138,11 @@ class MainHome(QMainWindow):
 
         return form_group_vt
 
-    @staticmethod
-    def build_log_output():
+    def build_log_output(self):
         bar = QStatusBar()
         bar.showMessage("Olá!", 5000)
         bar.setStyleSheet("font-weight: bold; border: 1px solid;")
+        self.logger.addHandler(GuiHandler(bar))
         return bar
 
     def load_buttons(self):

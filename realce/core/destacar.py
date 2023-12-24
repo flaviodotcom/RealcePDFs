@@ -5,11 +5,13 @@ import fitz
 import openpyxl
 from tkinter import messagebox
 
+from realce import get_logger
 from realce.core.selecionar import SelectFiles
 
 
 class BaseRealcePdf:
     caminho_arquivo_saida: str
+    logger = get_logger('RealcePDFs')
 
     @staticmethod
     def destacar_pdf(campo_arquivo_excel, campo_arquivo_pdf):
@@ -67,6 +69,7 @@ class BaseRealcePdf:
     @staticmethod
     def exibir_mensagem_conclusao(pasta_destino, matriculas_nao_encontradas):
         messagebox.showinfo("Concluído", f"O Arquivo final foi salvo em:\n{pasta_destino}")
+        BaseRealcePdf.logger.info(f'O Arquivo final foi salvo em: {pasta_destino}')
 
         if matriculas_nao_encontradas:
             nome_arquivo_txt = "Matrículas não encontradas.txt"
@@ -87,6 +90,7 @@ class BaseRealcePdf:
                 f"Não foi possível encontrar algumas matrículas no arquivo PDF selecionado.\n\nFoi gerado um "
                 f"arquivo de texto que contém as matrículas não encontradas, salvo em:\n{caminho_arquivo_txt}",
             )
+            BaseRealcePdf.logger.info('Algumas matrículas não foram encontradas')
 
 
 class RealceMatriculas(BaseRealcePdf):
