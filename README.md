@@ -30,6 +30,21 @@ pip install --upgrade pip
 pip install -r requirements.txt
 ```
 
+### Testes
+
+Para executar os testes, execute o comando abaixo:
+
+```bash
+python -m unittest discover -s ./tests -p 'test_*.py'
+```
+
+ou
+
+```bash
+pip install pytest
+python -m pytest
+```
+
 ## Executável
 
 O projeto oferece um arquivo executável, possibilitando a utilização do programa em computadores que não possuem o
@@ -39,16 +54,19 @@ interpretador Python instalado.
 
 **Selecione os Arquivos**: Clique nos botões "Selecionar" para escolher os arquivos Excel e PDF correspondentes.
 
-**Formato do Arquivo Excel**: Certifique-se de que as matrículas estejam na coluna B da planilha. O programa analisará essa
+**Formato do Arquivo Excel**: Certifique-se de que as matrículas estejam na coluna B da planilha. O programa analisará
+essa
 coluna em busca das matrículas. Não deve haver outras informações nessa coluna.
 
 **Nomes dos Colaboradores**: Para identificar as matrículas, o programa usa os nomes dos colaboradores na coluna C da
 planilha. Mantenha os nomes dos colaboradores nessa coluna.
 
-**Arquivo de Texto**: O programa cria um arquivo de texto que lista as matrículas não encontradas, juntamente com os nomes
+**Arquivo de Texto**: O programa cria um arquivo de texto que lista as matrículas não encontradas, juntamente com os
+nomes
 dos colaboradores. Esse arquivo será salvo no mesmo diretório do PDF editado.
 
-**Salvar**: Clique no botão "Salvar" para salvar o PDF editado na Área de Trabalho (Desktop), dentro da pasta "BENEFÍCIOS
+**Salvar**: Clique no botão "Salvar" para salvar o PDF editado na Área de Trabalho (Desktop), dentro da pasta "
+BENEFÍCIOS
 DESTACADOS". Você também pode clicar em "Salvar Como" para escolher um local de armazenamento personalizado.
 
 ## Funcionalidades Adicionais
