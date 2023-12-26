@@ -12,13 +12,7 @@ class SelectFiles:
 
     @staticmethod
     def selecionar_arquivo_excel(campo_arquivo_excel):
-        caminho_arquivo = filedialog.askopenfilename(
-            filetypes=[
-                ("Arquivos Excel", "*.xlsx"),
-                ("Arquivos CSV", "*.csv"),
-                ("Arquivos Excel 97-2003", "*.xls"),
-            ]
-        )
+        caminho_arquivo = filedialog.askopenfilename(filetypes=[("Arquivos Excel", "*.xlsx")])
         campo_arquivo_excel.clear()
         campo_arquivo_excel.insert(caminho_arquivo)
 
