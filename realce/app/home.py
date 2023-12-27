@@ -1,6 +1,5 @@
 import sys
 import logging
-import platform
 
 from PySide6.QtCore import Slot, Qt, QSize, QThread, Signal
 from PySide6.QtGui import QAction, QActionGroup, QIcon
@@ -45,13 +44,14 @@ class GuiHandler(logging.Handler):
 
 class MainHome(QMainWindow):
     separar_vts_button: QPushButton
+    salvar: QPushButton
+    salvar_como: QPushButton
     excel_file: QLineEdit
     pdf_file: QLineEdit
     tutorial = None
 
     def __init__(self):
         super().__init__()
-        self.theme_is_w10 = self.init_theme_menu()
         self.setWindowTitle('RealcePDFs')
         self.setWindowIcon(QIcon(resource_path('resources/images/Cookie-Monster.ico')))
         self.setFixedSize(QSize(620, 300))
@@ -62,22 +62,18 @@ class MainHome(QMainWindow):
         atalhos(self)
 
     def init_theme_menu(self):
-        so = dict(Linux=False, Darwin=False)
-        show_combo_box = so.get(platform.system(), True)
+        menu = QMenu('Mudar tema')
+        setup_theme('auto')
+        theme_group = QActionGroup(self)
+        themes = ['dark', 'light', 'auto']
 
-        if show_combo_box and platform.release() == '10':
-            menu = QMenu('Mudar tema')
-            setup_theme("auto")
-            theme_group = QActionGroup(self)
-            themes = ['dark', 'light', 'auto']
+        for theme in themes:
+            action = QAction(theme.capitalize(), self, checkable=True)
+            action.triggered.connect(lambda *args, get_theme=theme: self.toggle_theme(get_theme))
+            theme_group.addAction(action)
+            menu.addAction(action)
 
-            for theme in themes:
-                action = QAction(theme.capitalize(), self, checkable=True)
-                action.triggered.connect(lambda *args, get_theme=theme: self.toggle_theme(get_theme))
-                theme_group.addAction(action)
-                menu.addAction(action)
-
-            return menu
+        return menu
 
     @staticmethod
     @Slot(str)
@@ -94,9 +90,8 @@ class MainHome(QMainWindow):
         q_action.triggered.connect(self.abrir_info)
         menu_como_funciona.addAction(q_action)
 
-        if self.theme_is_w10:
-            menu_theme = menu_bar.addMenu('&Tema')
-            menu_theme.addMenu(self.theme_is_w10)
+        menu_theme = menu_bar.addMenu('&Tema')
+        menu_theme.addMenu(self.init_theme_menu())
 
     def build_layout(self):
         widget = QWidget(self)
@@ -122,7 +117,7 @@ class MainHome(QMainWindow):
         acoes_form.setSpacing(8)
 
         self.excel_file, self.pdf_file = QLineEdit(), QLineEdit()
-        salvar, salvar_como, encontrar_excel, encontrar_pdf = self.load_buttons()
+        self.salvar, self.salvar_como, encontrar_excel, encontrar_pdf = self.load_buttons()
 
         excel_layout, pdf_layout = QHBoxLayout(), QHBoxLayout()
         excel_layout.addWidget(self.excel_file)
@@ -134,8 +129,8 @@ class MainHome(QMainWindow):
         acoes_form.addRow('Arquivo PDF:', pdf_layout)
 
         layout = QHBoxLayout()
-        layout.addWidget(salvar)
-        layout.addWidget(salvar_como)
+        layout.addWidget(self.salvar)
+        layout.addWidget(self.salvar_como)
         acoes_form.addRow(layout)
 
         form_group = QGroupBox()
@@ -165,8 +160,8 @@ class MainHome(QMainWindow):
 
     def load_buttons(self):
         salvar, salvar_como = QPushButton("Salvar"), QPushButton("Salvar Como")
-        salvar.clicked.connect(lambda: salvar_para_pasta_padrao(self.excel_file, self.pdf_file))
-        salvar_como.clicked.connect(lambda: salvar_para_pasta_selecionada(self.excel_file, self.pdf_file))
+        salvar.clicked.connect(lambda: self.acao_salvar_padrao())
+        salvar_como.clicked.connect(lambda: self.acao_salvar_selecionada())
 
         encontrar_excel, encontrar_pdf = QPushButton("Escolher arquivo"), QPushButton("Escolher arquivo")
         encontrar_excel.clicked.connect(lambda: SelectFiles.selecionar_arquivo_excel(self.excel_file))
@@ -179,18 +174,29 @@ class MainHome(QMainWindow):
             self.tutorial = Tutorial()
             self.tutorial.show()
 
-    def acao_vt(self):
-        worker_thread_redmine = WorkerThread(SepararPDF.separar_vt, self.excel_file, self.pdf_file)
-        self.separar_vts_button.setEnabled(False)
-        worker_thread_redmine.finished.connect(self.handle_worker_thread_finished)
-        worker_thread_redmine.start()
+    def acao_salvar_padrao(self):
+        worker_thread_salvar_padrao = WorkerThread(salvar_para_pasta_padrao, self.excel_file, self.pdf_file)
+        self.salvar.setEnabled(False)
+        worker_thread_salvar_padrao.finished.connect(lambda: self.handle_thread_finished(button=self.salvar))
+        worker_thread_salvar_padrao.finished.connect(worker_thread_salvar_padrao.deleteLater)
+        worker_thread_salvar_padrao.start()
 
-    def handle_worker_thread_finished(self, result):
-        self.separar_vts_button.setEnabled(True)
-        if isinstance(result, Exception):
-            self.logger.error(f'Ocorreu um Problema: {result}')
-        else:
-            self.logger.info('Processo finalizado!')
+    def acao_salvar_selecionada(self):
+        worker_thread_salvar_selecionada = WorkerThread(salvar_para_pasta_selecionada, self.excel_file, self.pdf_file)
+        self.salvar_como.setEnabled(False)
+        worker_thread_salvar_selecionada.finished.connect(lambda: self.handle_thread_finished(button=self.salvar_como))
+        worker_thread_salvar_selecionada.finished.connect(worker_thread_salvar_selecionada.deleteLater)
+        worker_thread_salvar_selecionada.start()
+
+    def acao_vt(self):
+        worker_thread_vt = WorkerThread(SepararPDF.separar_vt, self.excel_file, self.pdf_file)
+        self.separar_vts_button.setEnabled(False)
+        worker_thread_vt.finished.connect(lambda: self.handle_thread_finished(button=self.separar_vts_button))
+        worker_thread_vt.start()
+
+    def handle_thread_finished(self, button):
+        button.setEnabled(True)
+        self.logger.info('Processo finalizado!')
 
 
 class RunHome:

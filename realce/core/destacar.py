@@ -22,26 +22,30 @@ class BaseRealcePdf:
         arquivo_excel = openpyxl.load_workbook(caminho_arquivo_excel)
         arquivo_pdf = fitz.open(caminho_arquivo_pdf)
 
-        matriculas_nao_encontradas = []
+        matriculas_nao_encontradas = list()
+        BaseRealcePdf.logger.info('Começando o destaque de PDFs')
 
         for linha in range(1, arquivo_excel.active.max_row + 1):
             numero_matricula = str(arquivo_excel.active.cell(row=linha, column=2).value)
-            nome_matricula = str(arquivo_excel.active.cell(row=linha, column=3).value).upper()
+            nome_funcionario = str(arquivo_excel.active.cell(row=linha, column=3).value).upper()
 
             encontrou_matricula = False
 
-            for pagina in arquivo_pdf:
-                for linha_texto in pagina.get_text().splitlines():
-                    if numero_matricula in linha_texto:
-                        realce = pagina.search_for(numero_matricula, hit_max=1)
-                        if realce:
-                            retangulo_realce = fitz.Rect(realce[0][:4])
-                            pagina.add_highlight_annot(retangulo_realce)
-                            encontrou_matricula = True
-                            break
+            if numero_matricula != 'None':
+                for pagina in arquivo_pdf:
+                    for linha_texto in pagina.get_text().splitlines():
+                        if numero_matricula in linha_texto:
+                            realce = pagina.search_for(numero_matricula, hit_max=1)
+                            if realce:
+                                retangulo_realce = fitz.Rect(realce[0][:4])
+                                pagina.add_highlight_annot(retangulo_realce)
+                                encontrou_matricula = True
+                                BaseRealcePdf.logger.info(
+                                    f'Destacando a matrícula {numero_matricula} do funcionário {nome_funcionario}')
+                                break
 
-            if not encontrou_matricula and nome_matricula and numero_matricula != "None":
-                matriculas_nao_encontradas.append(f"{numero_matricula} - {nome_matricula}")
+            if not encontrou_matricula and nome_funcionario and numero_matricula != "None":
+                matriculas_nao_encontradas.append(f"{numero_matricula} - {nome_funcionario}")
 
         return arquivo_pdf, matriculas_nao_encontradas, nome_arquivo
 
