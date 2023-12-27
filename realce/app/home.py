@@ -2,7 +2,7 @@ import sys
 import logging
 import platform
 
-from PySide6.QtCore import Slot, Qt, QSize
+from PySide6.QtCore import Slot, Qt, QSize, QThread, Signal
 from PySide6.QtGui import QAction, QActionGroup, QIcon
 from PySide6.QtWidgets import QMainWindow, QApplication, QWidget, QVBoxLayout, QMenu, QHBoxLayout, QFormLayout, \
     QGroupBox, QPushButton, QLineEdit, QStatusBar
@@ -17,6 +17,23 @@ from realce.core.vt import SepararPDF
 from realce.infra.helper import resource_path
 
 
+class WorkerThread(QThread):
+    finished = Signal(object)
+
+    def __init__(self, function_to_run, *args, **kwargs):
+        super().__init__()
+        self.function_to_run = function_to_run
+        self.args = args
+        self.kwargs = kwargs
+
+    def run(self):
+        try:
+            result = self.function_to_run(*self.args, **self.kwargs)
+            self.finished.emit(result)
+        except Exception as e:
+            self.finished.emit(e)
+
+
 class GuiHandler(logging.Handler):
     def __init__(self, output: QStatusBar):
         super().__init__()
@@ -27,6 +44,7 @@ class GuiHandler(logging.Handler):
 
 
 class MainHome(QMainWindow):
+    separar_vts_button: QPushButton
     excel_file: QLineEdit
     pdf_file: QLineEdit
     tutorial = None
@@ -127,11 +145,11 @@ class MainHome(QMainWindow):
 
     def build_separar_vts(self):
         separar_vts_form = QFormLayout()
-        separar_vts_button = QPushButton("Separar PDFs")
-        separar_vts_button.clicked.connect(lambda: SepararPDF.separar_vt(self.excel_file, self.pdf_file))
+        self.separar_vts_button = QPushButton("Separar PDFs")
+        self.separar_vts_button.clicked.connect(lambda: self.acao_vt())
 
         layout_vt = QHBoxLayout()
-        layout_vt.addWidget(separar_vts_button)
+        layout_vt.addWidget(self.separar_vts_button)
         separar_vts_form.addRow(layout_vt)
         form_group_vt = QGroupBox("Vale Transporte")
         form_group_vt.setLayout(separar_vts_form)
@@ -160,6 +178,19 @@ class MainHome(QMainWindow):
         if not (self.tutorial and self.tutorial.is_visible()):
             self.tutorial = Tutorial()
             self.tutorial.show()
+
+    def acao_vt(self):
+        worker_thread_redmine = WorkerThread(SepararPDF.separar_vt, self.excel_file, self.pdf_file)
+        self.separar_vts_button.setEnabled(False)
+        worker_thread_redmine.finished.connect(self.handle_worker_thread_finished)
+        worker_thread_redmine.start()
+
+    def handle_worker_thread_finished(self, result):
+        self.separar_vts_button.setEnabled(True)
+        if isinstance(result, Exception):
+            self.logger.error(f'Ocorreu um Problema: {result}')
+        else:
+            self.logger.info('Processo finalizado!')
 
 
 class RunHome:

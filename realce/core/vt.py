@@ -5,11 +5,14 @@ from PyPDF4 import PdfFileMerger
 from PyPDF2 import PdfWriter, PdfReader
 from tkinter import filedialog
 
+from realce import RealceLogger
 from realce.core.destacar import BaseRealcePdf
 from realce.infra.error import existe_erro, tratar_pasta_destino, confirmar_diretorio
 
 
 class SepararPDF(BaseRealcePdf):
+    def __init__(self):
+        self.logger = RealceLogger.get_logger()
 
     @staticmethod
     def separar_vt(campo_arquivo_excel, campo_arquivo_pdf):
@@ -34,7 +37,7 @@ class SepararPDF(BaseRealcePdf):
 
     @staticmethod
     def criar_pasta_vt_separado(pasta_destino):
-        pasta_destino = f'{pasta_destino}/Vt Separado'
+        pasta_destino = f'{pasta_destino}/Vt'
         check_folder = os.path.isdir(pasta_destino)
         if not check_folder:
             os.makedirs(pasta_destino)
@@ -49,13 +52,17 @@ class SepararPDF(BaseRealcePdf):
             nome_func = str(planilha.cell(row=linha, column=3).value)
             new_pdf = PdfWriter()
 
-            for pagina in arquivo_pdf.pages:
-                if numero_matricula in pagina.extract_text():
-                    new_pdf.add_page(pagina)
+            if numero_matricula != 'None':
+                for pagina in arquivo_pdf.pages:
+                    if numero_matricula in pagina.extract_text():
+                        new_pdf.add_page(pagina)
 
+            SepararPDF.logger.info(f'Iterando... '
+                                   f'Linha {linha}; Número da matrícula {numero_matricula}; Funcionário {nome_func}')
             if len(new_pdf.pages) > 0:
-                output_file = f"{pasta_destino}/{nome_func}.pdf"
+                output_file = f"{pasta_destino}/{nome_func.strip()}.pdf"
                 with open(output_file, "wb") as f:
+                    SepararPDF.logger.info(f'Salvando arquivo {f.name}')
                     new_pdf.write(f)
 
     @staticmethod
@@ -65,13 +72,14 @@ class SepararPDF(BaseRealcePdf):
             if arquivo.lower().endswith(".pdf"):
                 caminho_arquivo = os.path.join(pasta_destino, arquivo)
                 with open(caminho_arquivo, 'rb') as f:
+                    SepararPDF.logger.info(f'Juntando arquivos...')
                     pdf_mesclado.append(f)
         return pdf_mesclado
 
     @staticmethod
     def salvar_arquivo_mesclado(pdf_mesclado, pasta_destino):
         if pdf_mesclado.pages:
-            caminho_arquivo_mesclado = f"{pasta_destino}/- Vt final.pdf"
+            caminho_arquivo_mesclado = f"{pasta_destino}/Arquivos Juntados.pdf"
             with open(caminho_arquivo_mesclado, "wb") as saida:
                 pdf_mesclado.write(saida)
 
