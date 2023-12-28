@@ -58,7 +58,7 @@ class MainHome(QMainWindow):
         super().__init__()
         self.setWindowTitle('RealcePDFs')
         self.setWindowIcon(QIcon(resource_path('resources/images/Cookie-Monster.ico')))
-        self.setFixedSize(QSize(620, 360))
+        self.setFixedSize(QSize(620, 300))
 
         self.logger = RealceLogger.get_logger()
         self.build_menu_bar()
@@ -101,15 +101,18 @@ class MainHome(QMainWindow):
         widget = QWidget(self)
         self.setCentralWidget(widget)
 
-        vertical_layout = QVBoxLayout()
-        vertical_layout.addWidget(self.build_form())
-        vertical_layout.addWidget(self.build_separar_vts())
-        vertical_layout.addWidget(self.build_log_output())
-        vertical_layout.addWidget(self.build_progress_bar())
-        vertical_layout.setSpacing(25)
+        output_layout = QVBoxLayout()
+        output_layout.addWidget(self.build_log_output())
+        output_layout.addWidget(self.build_progress_bar())
+        output_layout.setSpacing(0)
+
+        realce_layout = QVBoxLayout()
+        realce_layout.addWidget(self.build_form())
+        realce_layout.addWidget(self.build_separar_vts())
+        realce_layout.addLayout(output_layout)
 
         main_layout = QHBoxLayout()
-        main_layout.addLayout(vertical_layout)
+        main_layout.addLayout(realce_layout)
         base_layout = QVBoxLayout(widget)
         base_layout.addLayout(main_layout)
         base_layout.setSpacing(15)
@@ -165,6 +168,20 @@ class MainHome(QMainWindow):
 
     def build_progress_bar(self):
         self.progress_bar = QProgressBar()
+        self.progress_bar.setStyleSheet("""
+            QProgressBar {
+                border: 1px solid;
+                border-radius: 0px;
+                border-top: none;
+            }
+
+            QProgressBar::chunk {
+                background-color: #008000;
+                border-radius: 0px;
+            }
+        """)
+        self.progress_bar.setTextVisible(False)
+        self.progress_bar.setFixedHeight(10)
         return self.progress_bar
 
     def load_buttons(self):
