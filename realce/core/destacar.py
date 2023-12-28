@@ -5,6 +5,8 @@ import fitz
 import openpyxl
 from tkinter import messagebox
 
+from PySide6.QtCore import QThread
+
 from realce import get_logger
 from realce.core.selecionar import SelectFiles
 
@@ -21,6 +23,8 @@ class BaseRealcePdf:
 
         arquivo_excel = openpyxl.load_workbook(caminho_arquivo_excel)
         arquivo_pdf = fitz.open(caminho_arquivo_pdf)
+
+        QThread.currentThread().progressUpdated.emit(25)
 
         matriculas_nao_encontradas = list()
         BaseRealcePdf.logger.info('Começando o destaque de PDFs')
@@ -72,6 +76,7 @@ class BaseRealcePdf:
 
     @staticmethod
     def exibir_mensagem_conclusao(pasta_destino, matriculas_nao_encontradas):
+        QThread.currentThread().progressUpdated.emit(100)
         messagebox.showinfo("Concluído", f"O Arquivo final foi salvo em:\n{pasta_destino}")
         BaseRealcePdf.logger.info(f'O Arquivo final foi salvo em: {pasta_destino}')
 
@@ -105,4 +110,5 @@ class RealceMatriculas(BaseRealcePdf):
                                                                                            campo_arquivo_pdf)
 
         RealceMatriculas.salvar_arquivo_pdf(pasta_destino, nome_arquivo, arquivo_pdf)
+        QThread.currentThread().progressUpdated.emit(75)
         RealceMatriculas.exibir_mensagem_conclusao(pasta_destino, matriculas_nao_encontradas)

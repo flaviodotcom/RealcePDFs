@@ -1,5 +1,6 @@
 import os
 
+from PySide6.QtCore import QThread
 from openpyxl import load_workbook
 from PyPDF4 import PdfFileMerger
 from PyPDF2 import PdfWriter, PdfReader
@@ -46,6 +47,7 @@ class SepararPDF(BaseRealcePdf):
     @staticmethod
     def separar_pdf_por_matricula(arquivo_pdf, campo_arquivo_excel, pasta_destino):
         planilha = load_workbook(campo_arquivo_excel.text()).active
+        QThread.currentThread().progressUpdated.emit(50)
 
         for linha in range(1, planilha.max_row + 1):
             numero_matricula = str(planilha.cell(row=linha, column=2).value)
@@ -68,6 +70,7 @@ class SepararPDF(BaseRealcePdf):
     @staticmethod
     def mesclar_pdfs(pasta_destino):
         pdf_mesclado = PdfFileMerger()
+        QThread.currentThread().progressUpdated.emit(75)
         for arquivo in os.listdir(pasta_destino):
             if arquivo.lower().endswith(".pdf"):
                 caminho_arquivo = os.path.join(pasta_destino, arquivo)
@@ -78,6 +81,7 @@ class SepararPDF(BaseRealcePdf):
 
     @staticmethod
     def salvar_arquivo_mesclado(pdf_mesclado, pasta_destino):
+        QThread.currentThread().progressUpdated.emit(99)
         if pdf_mesclado.pages:
             caminho_arquivo_mesclado = f"{pasta_destino}/Arquivos Juntados.pdf"
             with open(caminho_arquivo_mesclado, "wb") as saida:
