@@ -29,10 +29,11 @@ class WorkerThread(QThread):
 
     def run(self):
         try:
-            result = self.function_to_run(*self.args, **self.kwargs)
             self.currentThread().setPriority(self.priority)
+            result = self.function_to_run(*self.args, **self.kwargs)
             self.finished.emit(result)
         except Exception as e:
+            RealceLogger.get_logger().error(e)
             self.finished.emit(e)
 
 
@@ -53,12 +54,15 @@ class MainHome(QMainWindow):
     excel_file: QLineEdit
     pdf_file: QLineEdit
     tutorial = None
+    thread_salvar_padrao = None
+    thread_salvar_selecionada = None
+    thread_vt = None
 
     def __init__(self):
         super().__init__()
         self.setWindowTitle('RealcePDFs')
         self.setWindowIcon(QIcon(resource_path('resources/images/Cookie-Monster.ico')))
-        self.setFixedSize(QSize(620, 300))
+        self.setFixedSize(QSize(620, 280))
 
         self.logger = RealceLogger.get_logger()
         self.build_menu_bar()
@@ -201,32 +205,32 @@ class MainHome(QMainWindow):
             self.tutorial.show()
 
     def acao_salvar_padrao(self):
-        worker_thread_salvar_padrao = WorkerThread(salvar_para_pasta_padrao, self.excel_file, self.pdf_file)
+        self.thread_salvar_padrao = WorkerThread(salvar_para_pasta_padrao, self.excel_file, self.pdf_file)
         self.salvar.setEnabled(False)
-        worker_thread_salvar_padrao.finished.connect(lambda: self.handle_thread_finished(button=self.salvar))
-        worker_thread_salvar_padrao.progressUpdated.connect(self.update_progress_bar)
-        worker_thread_salvar_padrao.start()
+        self.thread_salvar_padrao.finished.connect(lambda: self.handle_thread_finished(self.salvar))
+        self.thread_salvar_padrao.progressUpdated.connect(self.update_progress_bar)
+        self.thread_salvar_padrao.start()
 
     def acao_salvar_selecionada(self):
-        worker_thread_salvar_selecionada = WorkerThread(salvar_para_pasta_selecionada, self.excel_file, self.pdf_file)
+        self.thread_salvar_selecionada = WorkerThread(salvar_para_pasta_selecionada, self.excel_file, self.pdf_file)
         self.salvar_como.setEnabled(False)
-        worker_thread_salvar_selecionada.finished.connect(lambda: self.handle_thread_finished(button=self.salvar_como))
-        worker_thread_salvar_selecionada.progressUpdated.connect(self.update_progress_bar)
-        worker_thread_salvar_selecionada.start()
+        self.thread_salvar_selecionada.finished.connect(lambda: self.handle_thread_finished(self.salvar_como))
+        self.thread_salvar_selecionada.progressUpdated.connect(self.update_progress_bar)
+        self.thread_salvar_selecionada.start()
 
     def acao_vt(self):
-        worker_thread_vt = WorkerThread(SepararPDF.separar_vt, self.excel_file, self.pdf_file)
+        self.thread_vt = WorkerThread(SepararPDF.separar_vt, self.excel_file, self.pdf_file)
         self.separar_vts_button.setEnabled(False)
-        worker_thread_vt.finished.connect(lambda: self.handle_thread_finished(button=self.separar_vts_button))
-        worker_thread_vt.progressUpdated.connect(self.update_progress_bar)
-        worker_thread_vt.start()
+        self.thread_vt.finished.connect(lambda: self.handle_thread_finished(self.separar_vts_button))
+        self.thread_vt.progressUpdated.connect(self.update_progress_bar)
+        self.thread_vt.start()
 
     def update_progress_bar(self, value):
         self.progress_bar.setValue(value)
 
-    def handle_thread_finished(self, button):
+    @staticmethod
+    def handle_thread_finished(button):
         button.setEnabled(True)
-        self.logger.info('Processo finalizado!')
 
 
 class RunHome:

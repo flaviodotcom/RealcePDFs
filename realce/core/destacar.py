@@ -8,7 +8,6 @@ from tkinter import messagebox
 from PySide6.QtCore import QThread
 
 from realce import get_logger
-from realce.core.selecionar import SelectFiles
 
 
 class BaseRealcePdf:
@@ -17,7 +16,7 @@ class BaseRealcePdf:
 
     @staticmethod
     def destacar_pdf(campo_arquivo_excel, campo_arquivo_pdf):
-        nome_arquivo = SelectFiles.guardar_nome()
+        nome_arquivo = os.path.basename(campo_arquivo_pdf.text())
         caminho_arquivo_excel = campo_arquivo_excel.text()
         caminho_arquivo_pdf = campo_arquivo_pdf.text()
 
@@ -30,26 +29,27 @@ class BaseRealcePdf:
         BaseRealcePdf.logger.info('Começando o destaque de PDFs')
 
         for linha in range(1, arquivo_excel.active.max_row + 1):
-            numero_matricula = str(arquivo_excel.active.cell(row=linha, column=2).value)
+            numero_matricula = arquivo_excel.active.cell(row=linha, column=2).value
             nome_funcionario = str(arquivo_excel.active.cell(row=linha, column=3).value).upper()
 
             encontrou_matricula = False
 
-            if numero_matricula != 'None':
+            if numero_matricula:
+                matricula = str(numero_matricula)
                 for pagina in arquivo_pdf:
                     for linha_texto in pagina.get_text().splitlines():
-                        if numero_matricula in linha_texto:
-                            realce = pagina.search_for(numero_matricula, hit_max=1)
+                        if matricula in linha_texto:
+                            realce = pagina.search_for(matricula, hit_max=1)
                             if realce:
                                 retangulo_realce = fitz.Rect(realce[0][:4])
                                 pagina.add_highlight_annot(retangulo_realce)
                                 encontrou_matricula = True
                                 BaseRealcePdf.logger.info(
-                                    f'Destacando a matrícula {numero_matricula} do funcionário {nome_funcionario}')
+                                    f'Destacando a matrícula {matricula} do funcionário {nome_funcionario}')
                                 break
 
-            if not encontrou_matricula and nome_funcionario and numero_matricula != "None":
-                matriculas_nao_encontradas.append(f"{numero_matricula} - {nome_funcionario}")
+                if nome_funcionario and not (numero_matricula and encontrou_matricula):
+                    matriculas_nao_encontradas.append(f'{numero_matricula} - {nome_funcionario}')
 
         return arquivo_pdf, matriculas_nao_encontradas, nome_arquivo
 
@@ -100,6 +100,7 @@ class BaseRealcePdf:
                 f"arquivo de texto que contém as matrículas não encontradas, salvo em:\n{caminho_arquivo_txt}",
             )
             BaseRealcePdf.logger.info('Algumas matrículas não foram encontradas')
+        BaseRealcePdf.logger.info('Processo finalizado!')
 
 
 class RealceMatriculas(BaseRealcePdf):

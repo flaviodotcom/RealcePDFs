@@ -4,7 +4,6 @@ from tkinter import filedialog
 
 
 class SelectFiles:
-    nome_arquivo: str
 
     def __init__(self, campo_arquivo_excel, campo_arquivo_pdf):
         self.selecionar_arquivo_excel(campo_arquivo_excel)
@@ -21,8 +20,3 @@ class SelectFiles:
         caminho_arquivo = filedialog.askopenfilename(filetypes=[("Arquivos PDF", "*.pdf")])
         campo_arquivo_pdf.clear()
         campo_arquivo_pdf.insert(caminho_arquivo)
-        SelectFiles.nome_arquivo = os.path.basename(caminho_arquivo)
-
-    @staticmethod
-    def guardar_nome():
-        return SelectFiles.nome_arquivo

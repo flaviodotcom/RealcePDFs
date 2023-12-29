@@ -21,20 +21,16 @@ class SepararPDF(BaseRealcePdf):
         if not pasta_destino:
             return
 
-        arquivo_pdf, matriculas_nao_encontradas, nome_arquivo = SepararPDF.destacar_pdf(campo_arquivo_excel,
-                                                                                        campo_arquivo_pdf)
+        nova_pasta_destino = SepararPDF.criar_pasta_vt_separado(pasta_destino)
+        pdf, matriculas_nao_encontradas, nome_arquivo = SepararPDF.destacar_pdf(campo_arquivo_excel, campo_arquivo_pdf)
 
-        nome_arquivo = SepararPDF.salvar_arquivo_pdf(pasta_destino, nome_arquivo, arquivo_pdf)
+        nome_arquivo = SepararPDF.salvar_arquivo_pdf(nova_pasta_destino, nome_arquivo, pdf)
+        pdf_reader = PdfReader(os.path.join(os.path.join(nova_pasta_destino, nome_arquivo)))
+        SepararPDF.separar_pdf_por_matricula(pdf_reader, campo_arquivo_excel, nova_pasta_destino)
 
-        arquivo_pdf = PdfReader(os.path.join(pasta_destino, nome_arquivo))
-        pasta_destino = SepararPDF.criar_pasta_vt_separado(pasta_destino)
-
-        SepararPDF.separar_pdf_por_matricula(arquivo_pdf, campo_arquivo_excel, pasta_destino)
-
-        pdf_mesclado = SepararPDF.mesclar_pdfs(pasta_destino)
-        SepararPDF.salvar_arquivo_mesclado(pdf_mesclado, pasta_destino)
-
-        SepararPDF.exibir_mensagem_conclusao(pasta_destino, matriculas_nao_encontradas)
+        pdf_mesclado = SepararPDF.mesclar_pdfs(nova_pasta_destino, nome_arquivo)
+        SepararPDF.salvar_arquivo_mesclado(pdf_mesclado, nova_pasta_destino)
+        SepararPDF.exibir_mensagem_conclusao(nova_pasta_destino, matriculas_nao_encontradas)
 
     @staticmethod
     def criar_pasta_vt_separado(pasta_destino):
@@ -45,18 +41,19 @@ class SepararPDF(BaseRealcePdf):
         return pasta_destino
 
     @staticmethod
-    def separar_pdf_por_matricula(arquivo_pdf, campo_arquivo_excel, pasta_destino):
+    def separar_pdf_por_matricula(pdf_reader, campo_arquivo_excel, pasta_destino):
         planilha = load_workbook(campo_arquivo_excel.text()).active
         QThread.currentThread().progressUpdated.emit(50)
 
         for linha in range(1, planilha.max_row + 1):
-            numero_matricula = str(planilha.cell(row=linha, column=2).value)
+            numero_matricula = planilha.cell(row=linha, column=2).value
             nome_func = str(planilha.cell(row=linha, column=3).value)
             new_pdf = PdfWriter()
 
-            if numero_matricula != 'None':
-                for pagina in arquivo_pdf.pages:
-                    if numero_matricula in pagina.extract_text():
+            if numero_matricula:
+                matricula = str(numero_matricula)
+                for pagina in pdf_reader.pages:
+                    if matricula in pagina.extract_text():
                         new_pdf.add_page(pagina)
 
             SepararPDF.logger.info(f'Iterando... '
@@ -68,11 +65,11 @@ class SepararPDF(BaseRealcePdf):
                     new_pdf.write(f)
 
     @staticmethod
-    def mesclar_pdfs(pasta_destino):
+    def mesclar_pdfs(pasta_destino, arquivo_destacado):
         pdf_mesclado = PdfFileMerger()
         QThread.currentThread().progressUpdated.emit(75)
         for arquivo in os.listdir(pasta_destino):
-            if arquivo.lower().endswith(".pdf"):
+            if arquivo.lower().endswith(".pdf") and arquivo != arquivo_destacado:
                 caminho_arquivo = os.path.join(pasta_destino, arquivo)
                 with open(caminho_arquivo, 'rb') as f:
                     SepararPDF.logger.info(f'Juntando arquivos...')
