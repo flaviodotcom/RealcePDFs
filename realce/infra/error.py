@@ -44,19 +44,8 @@ def is_valid_file(caminho_arquivo_excel, caminho_arquivo_pdf) -> bool:
         return False
 
 
-def tratar_pasta_destino(pasta_destino) -> bool:
-    try:
-        if not (pasta_destino and os.path.exists(pasta_destino)):
-            raise TratarErro('Selecione uma pasta de destino válida.')
-    except TratarErro as e:
-        messagebox.showerror('Ocorreu um problema', str(e))
-        return True
-
+def campos_sao_validos(caminho_arquivo_excel, caminho_arquivo_pdf) -> bool:
+    if not existe_erro(caminho_arquivo_excel, caminho_arquivo_pdf):
+        if is_valid_file(caminho_arquivo_excel, caminho_arquivo_pdf):
+            return True
     return False
-
-
-def confirmar_diretorio(pasta_destino):
-    return messagebox.askokcancel(
-        title="Revise as informações",
-        message=f"Diretório escolhido:\n{pasta_destino}.\nDeseja Continuar?"
-    )

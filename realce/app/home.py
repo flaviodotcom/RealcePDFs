@@ -34,6 +34,8 @@ class WorkerThread(QThread):
             self.finished.emit(result)
         except Exception as e:
             RealceLogger.get_logger().error(e)
+            if str(e).startswith('The SignalInstance object was already deleted'):
+                RealceLogger.get_logger().info('Ocorreu um erro :C. Por favor, tente novamente.')
             self.finished.emit(e)
 
 

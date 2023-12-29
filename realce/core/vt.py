@@ -8,7 +8,7 @@ from tkinter import filedialog
 
 from realce import RealceLogger
 from realce.core.destacar import BaseRealcePdf
-from realce.infra.error import existe_erro, tratar_pasta_destino, confirmar_diretorio
+from realce.infra.error import campos_sao_validos
 
 
 class SepararPDF(BaseRealcePdf):
@@ -17,7 +17,7 @@ class SepararPDF(BaseRealcePdf):
 
     @staticmethod
     def separar_vt(campo_arquivo_excel, campo_arquivo_pdf):
-        pasta_destino = SepararPDF.tratamento(campo_arquivo_excel.text(), campo_arquivo_pdf.text())
+        pasta_destino = SepararPDF.pasta_destino(campo_arquivo_excel.text(), campo_arquivo_pdf.text())
         if not pasta_destino:
             return
 
@@ -85,12 +85,9 @@ class SepararPDF(BaseRealcePdf):
                 pdf_mesclado.write(saida)
 
     @staticmethod
-    def tratamento(campo_arquivo_excel, campo_arquivo_pdf):
-        if existe_erro(campo_arquivo_excel, campo_arquivo_pdf):
-            return False
-
-        pasta_destino = filedialog.askdirectory()
-        if not tratar_pasta_destino(pasta_destino):
-            if confirmar_diretorio(pasta_destino):
+    def pasta_destino(campo_arquivo_excel, campo_arquivo_pdf):
+        if campos_sao_validos(campo_arquivo_excel, campo_arquivo_pdf):
+            pasta_destino = filedialog.askdirectory()
+            if pasta_destino:
                 return pasta_destino
         return False
