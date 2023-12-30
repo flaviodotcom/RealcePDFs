@@ -32,11 +32,16 @@ class WorkerThread(QThread):
             self.currentThread().setPriority(self.priority)
             result = self.function_to_run(*self.args, **self.kwargs)
             self.finished.emit(result)
+        except KeyboardInterrupt as e:
+            self.finished.emit(e)
         except Exception as e:
-            RealceLogger.get_logger().error(e)
+            RealceLogger.get_logger().error(f'Tente novamente. Erro: {e}')
             if str(e).startswith('The SignalInstance object was already deleted'):
                 RealceLogger.get_logger().info('Ocorreu um erro :C. Por favor, tente novamente.')
             self.finished.emit(e)
+
+    def stop_execution(self):
+        raise KeyboardInterrupt()
 
 
 class GuiHandler(logging.Handler):

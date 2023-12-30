@@ -18,9 +18,6 @@ class SepararPDF(BaseRealcePdf):
     @staticmethod
     def separar_vt(campo_arquivo_excel, campo_arquivo_pdf):
         pasta_destino = SepararPDF.pasta_destino(campo_arquivo_excel.text(), campo_arquivo_pdf.text())
-        if not pasta_destino:
-            return
-
         nova_pasta_destino = SepararPDF.criar_pasta_vt_separado(pasta_destino)
         pdf, matriculas_nao_encontradas, nome_arquivo = SepararPDF.destacar_pdf(campo_arquivo_excel, campo_arquivo_pdf)
 
@@ -90,4 +87,4 @@ class SepararPDF(BaseRealcePdf):
             pasta_destino = filedialog.askdirectory()
             if pasta_destino:
                 return pasta_destino
-        return False
+        QThread.currentThread().stop_execution()
