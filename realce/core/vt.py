@@ -17,12 +17,12 @@ class SepararPDF(BaseRealcePdf):
 
     @staticmethod
     def separar_vt(campo_arquivo_excel, campo_arquivo_pdf):
-        pasta_destino = SepararPDF.pasta_destino(campo_arquivo_excel.text(), campo_arquivo_pdf.text())
+        pasta_destino = SepararPDF.pasta_destino(campo_arquivo_excel, campo_arquivo_pdf)
         nova_pasta_destino = SepararPDF.criar_pasta_vt_separado(pasta_destino)
         pdf, matriculas_nao_encontradas, nome_arquivo = SepararPDF.destacar_pdf(campo_arquivo_excel, campo_arquivo_pdf)
 
         nome_arquivo = SepararPDF.salvar_arquivo_pdf(nova_pasta_destino, nome_arquivo, pdf)
-        pdf_reader = PdfReader(os.path.join(os.path.join(nova_pasta_destino, nome_arquivo)))
+        pdf_reader = PdfReader(os.path.join(nova_pasta_destino, nome_arquivo))
         SepararPDF.separar_pdf_por_matricula(pdf_reader, campo_arquivo_excel, nova_pasta_destino)
 
         pdf_mesclado = SepararPDF.mesclar_pdfs(nova_pasta_destino, nome_arquivo)
@@ -39,7 +39,7 @@ class SepararPDF(BaseRealcePdf):
 
     @staticmethod
     def separar_pdf_por_matricula(pdf_reader, campo_arquivo_excel, pasta_destino):
-        planilha = load_workbook(campo_arquivo_excel.text()).active
+        planilha = load_workbook(campo_arquivo_excel).active
         QThread.currentThread().progressUpdated.emit(50)
 
         for linha in range(1, planilha.max_row + 1):

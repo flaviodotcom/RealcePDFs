@@ -211,22 +211,25 @@ class MainHome(QMainWindow):
             self.tutorial = Tutorial()
             self.tutorial.show()
 
+    def get_field_text(self):
+        return self.excel_file.text(), self.pdf_file.text()
+
     def acao_salvar_padrao(self):
-        self.thread_salvar_padrao = WorkerThread(salvar_para_pasta_padrao, self.excel_file, self.pdf_file)
+        self.thread_salvar_padrao = WorkerThread(salvar_para_pasta_padrao, *self.get_field_text())
         self.salvar.setEnabled(False)
         self.thread_salvar_padrao.finished.connect(lambda: self.handle_thread_finished(self.salvar))
         self.thread_salvar_padrao.progressUpdated.connect(self.update_progress_bar)
         self.thread_salvar_padrao.start()
 
     def acao_salvar_selecionada(self):
-        self.thread_salvar_selecionada = WorkerThread(salvar_para_pasta_selecionada, self.excel_file, self.pdf_file)
+        self.thread_salvar_selecionada = WorkerThread(salvar_para_pasta_selecionada, *self.get_field_text())
         self.salvar_como.setEnabled(False)
         self.thread_salvar_selecionada.finished.connect(lambda: self.handle_thread_finished(self.salvar_como))
         self.thread_salvar_selecionada.progressUpdated.connect(self.update_progress_bar)
         self.thread_salvar_selecionada.start()
 
     def acao_vt(self):
-        self.thread_vt = WorkerThread(SepararPDF.separar_vt, self.excel_file, self.pdf_file)
+        self.thread_vt = WorkerThread(SepararPDF.separar_vt, *self.get_field_text())
         self.separar_vts_button.setEnabled(False)
         self.thread_vt.finished.connect(lambda: self.handle_thread_finished(self.separar_vts_button))
         self.thread_vt.progressUpdated.connect(self.update_progress_bar)

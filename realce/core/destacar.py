@@ -11,17 +11,14 @@ from realce import get_logger
 
 
 class BaseRealcePdf:
-    caminho_arquivo_saida: str
     logger = get_logger('RealcePDFs')
 
     @staticmethod
     def destacar_pdf(campo_arquivo_excel, campo_arquivo_pdf):
-        nome_arquivo = os.path.basename(campo_arquivo_pdf.text())
-        caminho_arquivo_excel = campo_arquivo_excel.text()
-        caminho_arquivo_pdf = campo_arquivo_pdf.text()
+        nome_arquivo = os.path.basename(campo_arquivo_pdf)
 
-        arquivo_excel = openpyxl.load_workbook(caminho_arquivo_excel)
-        arquivo_pdf = fitz.open(caminho_arquivo_pdf)
+        arquivo_excel = openpyxl.load_workbook(campo_arquivo_excel)
+        arquivo_pdf = fitz.open(campo_arquivo_pdf)
 
         QThread.currentThread().progressUpdated.emit(25)
 
@@ -69,8 +66,8 @@ class BaseRealcePdf:
 
             numero_arquivo += 1
 
-        BaseRealcePdf.caminho_arquivo_saida = os.path.join(pasta_destino, nome_arquivo)
-        arquivo_pdf.save(BaseRealcePdf.caminho_arquivo_saida)
+        caminho_arquivo_saida = os.path.join(pasta_destino, nome_arquivo)
+        arquivo_pdf.save(caminho_arquivo_saida)
 
         return nome_arquivo
 
