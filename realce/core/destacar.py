@@ -5,6 +5,7 @@ import fitz
 import openpyxl
 from tkinter import messagebox
 
+from pypdf import PdfWriter
 from PySide6.QtCore import QThread
 
 from realce import get_logger
@@ -67,7 +68,13 @@ class BaseRealcePdf:
             numero_arquivo += 1
 
         caminho_arquivo_saida = os.path.join(pasta_destino, nome_arquivo)
-        arquivo_pdf.save(caminho_arquivo_saida)
+        QThread.currentThread().progressUpdated.emit(99)
+
+        if isinstance(arquivo_pdf, PdfWriter):
+            with open(caminho_arquivo_saida, "wb") as f:
+                arquivo_pdf.write(f)
+        else:
+            arquivo_pdf.save(caminho_arquivo_saida)
 
         return nome_arquivo
 
@@ -108,5 +115,4 @@ class RealceMatriculas(BaseRealcePdf):
                                                                                            campo_arquivo_pdf)
 
         RealceMatriculas.salvar_arquivo_pdf(pasta_destino, nome_arquivo, arquivo_pdf)
-        QThread.currentThread().progressUpdated.emit(75)
         RealceMatriculas.exibir_mensagem_conclusao(pasta_destino, matriculas_nao_encontradas)

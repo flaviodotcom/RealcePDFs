@@ -80,7 +80,7 @@ salvos em uma pasta de sua escolha.
 
 ## Como Funciona?
 
-O programa utiliza bibliotecas como PyPDF2, PyPDF4 e openpyxl para realizar as seguintes tarefas:
+O programa utiliza bibliotecas como PyMuPDF, pypdf e openpyxl para realizar as seguintes tarefas:
 
 Abre o arquivo PDF e a planilha do Excel selecionados.
 Percorre as páginas do PDF em busca das matrículas e realça os números encontrados.

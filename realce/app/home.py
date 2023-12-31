@@ -121,6 +121,7 @@ class MainHome(QMainWindow):
         realce_layout.addWidget(self.build_form())
         realce_layout.addWidget(self.build_separar_vts())
         realce_layout.addLayout(output_layout)
+        realce_layout.setSpacing(8)
 
         main_layout = QHBoxLayout()
         main_layout.addLayout(realce_layout)

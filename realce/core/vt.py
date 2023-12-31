@@ -1,10 +1,9 @@
 import os
+from tkinter import filedialog
 
 from PySide6.QtCore import QThread
 from openpyxl import load_workbook
-from PyPDF4 import PdfFileMerger
-from PyPDF2 import PdfWriter, PdfReader
-from tkinter import filedialog
+from pypdf import PdfWriter, PdfReader
 
 from realce import RealceLogger
 from realce.core.destacar import BaseRealcePdf
@@ -23,10 +22,10 @@ class SepararPDF(BaseRealcePdf):
 
         nome_arquivo = SepararPDF.salvar_arquivo_pdf(nova_pasta_destino, nome_arquivo, pdf)
         pdf_reader = PdfReader(os.path.join(nova_pasta_destino, nome_arquivo))
-        SepararPDF.separar_pdf_por_matricula(pdf_reader, campo_arquivo_excel, nova_pasta_destino)
+        planilha = SepararPDF.separar_pdf_por_matricula(pdf_reader, campo_arquivo_excel, nova_pasta_destino)
 
-        pdf_mesclado = SepararPDF.mesclar_pdfs(nova_pasta_destino, nome_arquivo)
-        SepararPDF.salvar_arquivo_mesclado(pdf_mesclado, nova_pasta_destino)
+        pdf_mesclado = SepararPDF.mesclar_pdfs(nova_pasta_destino, nome_arquivo, planilha)
+        SepararPDF.salvar_arquivo_pdf(nova_pasta_destino, '- PDF_MERGEADO.pdf', pdf_mesclado)
         SepararPDF.exibir_mensagem_conclusao(nova_pasta_destino, matriculas_nao_encontradas)
 
     @staticmethod
@@ -61,25 +60,34 @@ class SepararPDF(BaseRealcePdf):
                     SepararPDF.logger.info(f'Salvando arquivo {f.name}')
                     new_pdf.write(f)
 
-    @staticmethod
-    def mesclar_pdfs(pasta_destino, arquivo_destacado):
-        pdf_mesclado = PdfFileMerger()
-        QThread.currentThread().progressUpdated.emit(75)
-        for arquivo in os.listdir(pasta_destino):
-            if arquivo.lower().endswith(".pdf") and arquivo != arquivo_destacado:
-                caminho_arquivo = os.path.join(pasta_destino, arquivo)
-                with open(caminho_arquivo, 'rb') as f:
-                    SepararPDF.logger.info(f'Juntando arquivos...')
-                    pdf_mesclado.append(f)
-        return pdf_mesclado
+        return planilha
 
     @staticmethod
-    def salvar_arquivo_mesclado(pdf_mesclado, pasta_destino):
-        QThread.currentThread().progressUpdated.emit(99)
-        if pdf_mesclado.pages:
-            caminho_arquivo_mesclado = f"{pasta_destino}/Arquivos Juntados.pdf"
-            with open(caminho_arquivo_mesclado, "wb") as saida:
-                pdf_mesclado.write(saida)
+    def mesclar_pdfs(pasta_destino, arquivo_destacado, planilha):
+        QThread.currentThread().progressUpdated.emit(75)
+        pdf_mergeado = PdfWriter()
+        matriculas_adicionadas = set()
+
+        with open(os.path.join(pasta_destino, arquivo_destacado), 'rb') as pdf:
+            pdf_reader = PdfReader(pdf)
+
+            for numero_pagina in range(len(pdf_reader.pages)):
+                procura_matriculas_excel = [str(planilha.cell(row=i, column=2).value) for i in
+                                            range(1, planilha.max_row + 1)]
+
+                matriculas_encontradas = set(procura_matriculas_excel) & set(
+                    pdf_reader.pages[numero_pagina].extract_text().split())
+
+                SepararPDF.logger.info(
+                    f'Juntando pdfs... Matrículas encontradas na página {numero_pagina + 1}:'
+                    f' {matriculas_encontradas if str(matriculas_encontradas) != "set()" else "Nenhuma"}')
+
+                if matriculas_encontradas and not matriculas_encontradas.issubset(matriculas_adicionadas):
+                    matriculas_adicionadas.update(matriculas_encontradas)
+                    pdf_mergeado.add_page(pdf_reader.pages[numero_pagina])
+                    SepararPDF.logger.info(f'Página adicionada')
+
+        return pdf_mergeado
 
     @staticmethod
     def pasta_destino(campo_arquivo_excel, campo_arquivo_pdf):
