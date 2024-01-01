@@ -2,7 +2,7 @@ import os
 from tkinter import messagebox
 from openpyxl.reader.excel import SUPPORTED_FORMATS
 
-from realce import get_logger
+from realce.infra.logger import get_logger
 
 
 class TratarErro(Exception):

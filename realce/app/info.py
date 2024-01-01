@@ -4,8 +4,7 @@ from PySide6.QtCore import Qt
 from PySide6.QtGui import QIcon
 from PySide6.QtWidgets import QMainWindow, QApplication, QWidget, QVBoxLayout, QPushButton, QLabel
 
-from realce.app import atalhos
-from realce.infra.helper import resource_path
+from realce.infra.helper import resource_path, atalhos
 
 
 class Tutorial(QMainWindow):

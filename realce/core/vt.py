@@ -1,13 +1,11 @@
 import os
-from tkinter import filedialog
 
-from PySide6.QtCore import QThread
 from openpyxl import load_workbook
 from pypdf import PdfWriter, PdfReader
 
-from realce import RealceLogger
 from realce.core.destacar import BaseRealcePdf
-from realce.infra.error import campos_sao_validos
+from realce.infra.logger import RealceLogger
+from realce.infra.thread import WorkerThread
 
 
 class SepararPDF(BaseRealcePdf):
@@ -15,8 +13,7 @@ class SepararPDF(BaseRealcePdf):
         self.logger = RealceLogger.get_logger()
 
     @staticmethod
-    def separar_vt(campo_arquivo_excel, campo_arquivo_pdf):
-        pasta_destino = SepararPDF.pasta_destino(campo_arquivo_excel, campo_arquivo_pdf)
+    def separar_vt(campo_arquivo_excel, campo_arquivo_pdf, pasta_destino):
         nova_pasta_destino = SepararPDF.criar_pasta_vt_separado(pasta_destino)
         pdf, matriculas_nao_encontradas, nome_arquivo = SepararPDF.destacar_pdf(campo_arquivo_excel, campo_arquivo_pdf)
 
@@ -39,7 +36,7 @@ class SepararPDF(BaseRealcePdf):
     @staticmethod
     def separar_pdf_por_matricula(pdf_reader, campo_arquivo_excel, pasta_destino):
         planilha = load_workbook(campo_arquivo_excel).active
-        QThread.currentThread().progressUpdated.emit(50)
+        WorkerThread.currentThread().progressUpdated.emit(50)
 
         for linha in range(1, planilha.max_row + 1):
             numero_matricula = planilha.cell(row=linha, column=2).value
@@ -64,7 +61,7 @@ class SepararPDF(BaseRealcePdf):
 
     @staticmethod
     def mesclar_pdfs(pasta_destino, arquivo_destacado, planilha):
-        QThread.currentThread().progressUpdated.emit(75)
+        WorkerThread.currentThread().progressUpdated.emit(75)
         pdf_mergeado = PdfWriter()
         matriculas_adicionadas = set()
 
@@ -88,11 +85,3 @@ class SepararPDF(BaseRealcePdf):
                     SepararPDF.logger.info(f'Página adicionada')
 
         return pdf_mergeado
-
-    @staticmethod
-    def pasta_destino(campo_arquivo_excel, campo_arquivo_pdf):
-        if campos_sao_validos(campo_arquivo_excel, campo_arquivo_pdf):
-            pasta_destino = filedialog.askdirectory()
-            if pasta_destino:
-                return pasta_destino
-        QThread.currentThread().stop_execution()
