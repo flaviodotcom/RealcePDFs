@@ -11,7 +11,7 @@ class Tutorial(QMainWindow):
     def __init__(self):
         super().__init__()
         self.setWindowTitle("Como Funciona?")
-        self.setFixedSize(620, 500)
+        self.setFixedSize(620, 520)
         self.setWindowIcon(QIcon(resource_path('resources/images/Taz.ico')))
         self.setWindowFlag(Qt.WindowType.WindowCloseButtonHint, True)
 
@@ -24,43 +24,49 @@ class Tutorial(QMainWindow):
 
         layout = QVBoxLayout(central_widget)
 
-        texto_informacoes = (
-            "Este programa permite destacar a matrícula dos funcionários em um arquivo PDF usando informações de "
-            "uma planilha do Excel."
-            " Principalmente usado para realçar os benefícios de Seguro de Vida, Plano Odontológico, "
-            "Vale Transporte, Vale Alimentação e Vale Refeição.\n\n"
-            "Orientações:\n\n"
-            "1. Clique no botão 'Selecionar' para escolher o arquivo Excel e PDF, respectivamente.\n\n"
-            "2. Certifique-se de que as matrículas estejam na coluna B da planilha. O programa percorre pela "
-            "segunda coluna (coluna B),"
-            " garanta que nessa coluna não existam outras informações.\n\n"
-            "3. O programa cria um arquivo de texto, que aponta quais foram as matrículas não encontradas junto "
-            "com o nome do colaborador."
-            " Para que essa funcionalidade ocorra como esperado, mantenha o nome dos colaboradores na terceira "
-            "coluna (coluna C) da planilha."
-            " O arquivo de texto será salvo no mesmo diretório do PDF editado.\n\n"
-            "4. Após selecionar os arquivos, clique no botão 'Salvar' para guardar o PDF editado na Área de "
-            "Trabalho (Desktop),"
-            "dentro da pasta 'BENEFÍCIOS DESTACADOS'. Alternativamente, clique no botão 'Salvar Como' para "
-            "escolher o local de armazenamento"
-            "do PDF editado que preferir.\n\n"
-            "Separar PDFS:\n\n"
-            "1. Clique no botão 'Selecionar' para escolher o arquivo Excel e PDF, respectivamente.\n\n"
-            "2. Após selecionar os arquivos, clique no botão 'Separar PDFs por Matricula' para escolher a pasta "
-            "de destino do PDF realçado,"
-            "logo após o programa irá criar uma pasta chamada 'Vt Separados', onde irá conter cada pagina do PDF "
-            "realçado que encontrou a"
-            "matrícula, e no fim irá juntar todos os PDFs que estão na pasta em um arquivo chamado 'Vt Final'."
+        info_text = (
+            """
+<h1 align="center">RealcePDFs</h1>
+            
+Este programa permite destacar a matrícula dos funcionários em um arquivo PDF usando informações de uma
+planilha do Excel. Principalmente usado para destacar os benefícios de Seguro de Vida, Plano Odontológico,
+Vale Transporte, Vale Alimentação e Vale Refeição.
+
+<h2>Orientações:</h2>
+
+<h3>Destaque</h3>
+
+1. Clique no botão 'Selecionar' para escolher o arquivo Excel e PDF, respectivamente.<br>
+2. Certifique-se de que as matrículas estejam na coluna B da planilha. O programa percorre pela segunda
+coluna (coluna B), garanta que nessa coluna não existam outras informações.<br>
+3. O programa cria um arquivo de texto, que aponta quais foram as matrículas não encontradas junto com o
+nome do colaborador.<br>
+4. Após selecionar os arquivos, clique no botão 'Salvar' para guardar o PDF editado na Área de Trabalho
+(Desktop), dentro da pasta 'BENEFÍCIOS DESTACADOS'. Alternativamente, clique no botão 'Salvar Como' para 
+escolher o local de armazenamento do PDF editado que preferir.
+
+<h3>Separar PDFs</h3>
+
+1. Clique no botão 'Selecionar' para escolher o arquivo Excel e PDF, respectivamente.<br>
+2. Após selecionar os arquivos, clique no botão 'Separar PDFs por Matricula' para escolher a pasta de
+destino do PDF realçado, após selecionar o caminho de destino, o programa irá criar uma pasta chamada 'Vt',
+onde irá conter cada pagina do PDF destacado em que uma matrícula foi encontrada. Finalmente, todos os PDFs
+destacados serão juntados em um arquivo único, sem duplicações (considerar mais de uma matrícula por PDF),
+este arquivo é nomeado de 'PDF_MERGEADO'.
+            """
         )
 
-        rotulo_informacoes = QLabel(texto_informacoes)
-        rotulo_informacoes.setWordWrap(True)
-        rotulo_informacoes.setAlignment(Qt.AlignmentFlag.AlignTop | Qt.AlignmentFlag.AlignLeft)
-        layout.addWidget(rotulo_informacoes, alignment=Qt.AlignmentFlag.AlignTop)
+        label_tutorial = QLabel()
+        label_tutorial.setMargin(10)
+        label_tutorial.setText(info_text)
+        label_tutorial.setWordWrap(True)
+        label_tutorial.setTextFormat(Qt.TextFormat.RichText)
+        label_tutorial.setTextInteractionFlags(Qt.TextInteractionFlag.TextSelectableByMouse)
+        layout.addWidget(label_tutorial)
 
         fechar_button = QPushButton("Fechar", self)
         fechar_button.clicked.connect(self.fechar_janela)
-        layout.addWidget(fechar_button, alignment=Qt.AlignmentFlag.AlignBottom | Qt.AlignmentFlag.AlignRight)
+        layout.addWidget(fechar_button, alignment=Qt.AlignmentFlag.AlignBottom | Qt.AlignmentFlag.AlignCenter)
 
     def fechar_janela(self):
         self.close()

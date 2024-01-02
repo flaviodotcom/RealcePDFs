@@ -106,6 +106,9 @@ class MainHome(QMainWindow):
         self.excel_file, self.pdf_file = QLineEdit(), QLineEdit()
         self.salvar, self.salvar_como, encontrar_excel, encontrar_pdf = self.load_buttons()
 
+        self.excel_file.setPlaceholderText('Insira o arquivo Excel (.xlsx, .xlsm, .xltx, .xltm)')
+        self.pdf_file.setPlaceholderText('Insira o arquivo PDF (.pdf)')
+
         excel_layout, pdf_layout = QHBoxLayout(), QHBoxLayout()
         excel_layout.addWidget(self.excel_file)
         excel_layout.addWidget(encontrar_excel)
@@ -122,6 +125,7 @@ class MainHome(QMainWindow):
 
         form_group = QGroupBox()
         form_group.setLayout(acoes_form)
+        form_group.setFocusPolicy(Qt.FocusPolicy.ClickFocus)
 
         return form_group
 
