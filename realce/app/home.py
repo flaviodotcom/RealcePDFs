@@ -24,9 +24,10 @@ class GuiHandler(logging.Handler):
 
 
 class MainHome(QMainWindow):
-    separar_vts_button: QPushButton
     salvar: QPushButton
     salvar_como: QPushButton
+    separar_vts_button: QPushButton
+    cancelar_button: QPushButton
     progress_bar: QProgressBar
     excel_file: QLineEdit
     pdf_file: QLineEdit
@@ -134,9 +135,14 @@ class MainHome(QMainWindow):
         self.separar_vts_button = QPushButton("Separar PDFs")
         self.separar_vts_button.clicked.connect(lambda: salvar_para_pasta_do_vt(*self.get_field_text(), parent=self))
 
+        self.cancelar_button = QPushButton('X')
+        self.cancelar_button.setStyleSheet('background-color: #cc0000; color: white; font-weight: bold;')
+
         layout_vt = QHBoxLayout()
-        layout_vt.addWidget(self.separar_vts_button)
+        layout_vt.addWidget(self.separar_vts_button, 1)
+        layout_vt.addWidget(self.cancelar_button, alignment=Qt.AlignmentFlag.AlignRight)
         separar_vts_form.addRow(layout_vt)
+        separar_vts_form.setSpacing(2)
         form_group_vt = QGroupBox("Vale Transporte")
         form_group_vt.setLayout(separar_vts_form)
 

@@ -20,9 +20,8 @@ class WorkerThread(QThread):
             self.currentThread().setPriority(self.priority)
             result = self.function_to_run(*self.args, **self.kwargs)
             self.finished.emit(result)
-        except KeyboardInterrupt as e:
-            self.finished.emit(e)
         except Exception as e:
+            self.thread_stopped_bar()
             RealceLogger.get_logger().error(f'Tente novamente. Erro: {e}')
             self.finished.emit(e)
 
@@ -33,5 +32,23 @@ class WorkerThread(QThread):
     def handle_thread_finished(button):
         button.setEnabled(True)
 
-    def stop_execution(self):
-        raise KeyboardInterrupt()
+    def thread_stopped_bar(self):
+        self.parent.progress_bar.setStyleSheet("""
+            QProgressBar {
+                border: 1px solid;
+                border-radius: 0px;
+                border-top: none;
+            }
+
+            QProgressBar::chunk {
+                background-color: #cc0000;
+                border-radius: 0px;
+            }
+        """)
+        self.parent.progress_bar.setValue(100)
+
+    def stop_execution(self, button):
+        button.setEnabled(True)
+        self.thread_stopped_bar()
+        RealceLogger.get_logger().info('Operação cancelada')
+        self.terminate()

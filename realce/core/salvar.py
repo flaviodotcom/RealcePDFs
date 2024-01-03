@@ -15,6 +15,7 @@ def salvar_para_pasta_padrao(campo_arquivo_excel, campo_arquivo_pdf, parent=None
         thread_padrao = WorkerThread(RealceMatriculas.pdf, campo_arquivo_excel, campo_arquivo_pdf, pasta_destino,
                                      parent=parent)
         parent.salvar.setEnabled(False)
+        parent.cancelar_button.clicked.connect(lambda: thread_padrao.stop_execution(parent.salvar))
         thread_padrao.finished.connect(lambda: thread_padrao.handle_thread_finished(parent.salvar))
         thread_padrao.progressUpdated.connect(thread_padrao.update_progress_bar)
         thread_padrao.start()
@@ -28,6 +29,7 @@ def salvar_para_pasta_selecionada(campo_arquivo_excel, campo_arquivo_pdf, parent
             thread_selecionada = WorkerThread(RealceMatriculas.pdf, campo_arquivo_excel, campo_arquivo_pdf,
                                               pasta_destino, parent=parent)
             parent.salvar_como.setEnabled(False)
+            parent.cancelar_button.clicked.connect(lambda: thread_selecionada.stop_execution(parent.salvar_como))
             thread_selecionada.finished.connect(lambda: thread_selecionada.handle_thread_finished(parent.salvar_como))
             thread_selecionada.progressUpdated.connect(thread_selecionada.update_progress_bar)
             thread_selecionada.start()
@@ -41,6 +43,7 @@ def salvar_para_pasta_do_vt(campo_arquivo_excel, campo_arquivo_pdf, parent=None)
             thread_vt = WorkerThread(SepararPDF.separar_vt, campo_arquivo_excel, campo_arquivo_pdf, pasta_destino,
                                      parent=parent)
             parent.separar_vts_button.setEnabled(False)
+            parent.cancelar_button.clicked.connect(lambda: thread_vt.stop_execution(parent.separar_vts_button))
             thread_vt.finished.connect(lambda: thread_vt.handle_thread_finished(parent.separar_vts_button))
             thread_vt.progressUpdated.connect(thread_vt.update_progress_bar)
             thread_vt.start()
