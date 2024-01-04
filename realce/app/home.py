@@ -168,6 +168,10 @@ class MainHome(QMainWindow):
                 background-color: #008000;
                 border-radius: 0px;
             }
+
+            .custom-color::chunk {
+                background-color: #cc0000;
+            }
         """)
         self.progress_bar.setTextVisible(False)
         self.progress_bar.setFixedHeight(10)

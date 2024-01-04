@@ -26,6 +26,8 @@ class WorkerThread(QThread):
             self.finished.emit(e)
 
     def update_progress_bar(self, value=None):
+        self.parent.progress_bar.setProperty('class', '')
+        self.parent.progress_bar.style().polish(self.parent.progress_bar)
         self.parent.progress_bar.setValue(value)
 
     @staticmethod
@@ -33,22 +35,13 @@ class WorkerThread(QThread):
         button.setEnabled(True)
 
     def thread_stopped_bar(self):
-        self.parent.progress_bar.setStyleSheet("""
-            QProgressBar {
-                border: 1px solid;
-                border-radius: 0px;
-                border-top: none;
-            }
-
-            QProgressBar::chunk {
-                background-color: #cc0000;
-                border-radius: 0px;
-            }
-        """)
+        self.parent.progress_bar.setProperty('class', 'custom-color')
+        self.parent.progress_bar.style().polish(self.parent.progress_bar)
         self.parent.progress_bar.setValue(100)
 
     def stop_execution(self, button):
-        button.setEnabled(True)
-        self.thread_stopped_bar()
-        RealceLogger.get_logger().info('Operação cancelada')
-        self.terminate()
+        if self.isRunning():
+            button.setEnabled(True)
+            self.thread_stopped_bar()
+            RealceLogger.get_logger().info('Operação cancelada')
+            self.terminate()
