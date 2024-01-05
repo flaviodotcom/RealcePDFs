@@ -1,4 +1,5 @@
 import os
+import re
 
 from openpyxl import load_workbook
 from pypdf import PdfWriter, PdfReader
@@ -69,11 +70,12 @@ class SepararPDF(BaseRealcePdf):
             pdf_reader = PdfReader(pdf)
 
             for numero_pagina in range(len(pdf_reader.pages)):
+                texto_pagina = re.sub(r'(_)(?=\d)', r'\1 ', pdf_reader.pages[numero_pagina].extract_text())
+
                 procura_matriculas_excel = [str(planilha.cell(row=i, column=2).value) for i in
                                             range(1, planilha.max_row + 1)]
 
-                matriculas_encontradas = set(procura_matriculas_excel) & set(
-                    pdf_reader.pages[numero_pagina].extract_text().split())
+                matriculas_encontradas = set(procura_matriculas_excel) & set(texto_pagina.split())
 
                 SepararPDF.logger.info(
                     f'Juntando pdfs... Matrículas encontradas na página {numero_pagina + 1}:'
