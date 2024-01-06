@@ -18,6 +18,7 @@ class BaseRealcePdf:
 
         arquivo_excel = openpyxl.load_workbook(campo_arquivo_excel)
         arquivo_pdf = fitz.open(campo_arquivo_pdf)
+        pdf_text = [pagina.get_text() for pagina in arquivo_pdf.pages()]
 
         WorkerThread.currentThread().progressUpdated.emit(25)
 
@@ -32,9 +33,10 @@ class BaseRealcePdf:
 
             if numero_matricula:
                 matricula = str(numero_matricula)
-                for pagina in arquivo_pdf:
-                    for linha_texto in pagina.get_text().splitlines():
-                        if matricula in linha_texto:
+                matricula_encontrada = any(matricula in texto_pagina for texto_pagina in pdf_text)
+                if matricula_encontrada:
+                    for pagina, texto_pagina in zip(arquivo_pdf.pages(), pdf_text):
+                        if matricula in texto_pagina:
                             realce = pagina.search_for(matricula, hit_max=1)
                             if realce:
                                 retangulo_realce = fitz.Rect(realce[0][:4])
@@ -44,7 +46,7 @@ class BaseRealcePdf:
                                     f'Destacando a matrícula {matricula} do funcionário {nome_funcionario}')
                                 break
 
-                if nome_funcionario and not (numero_matricula and encontrou_matricula):
+                if nome_funcionario and not encontrou_matricula:
                     matriculas_nao_encontradas.append(f'{numero_matricula} - {nome_funcionario}')
 
         return arquivo_pdf, matriculas_nao_encontradas, nome_arquivo
@@ -65,12 +67,14 @@ class BaseRealcePdf:
 
             numero_arquivo += 1
 
+        BaseRealcePdf.logger.info(f'Salvando o arquivo {nome_arquivo}')
         caminho_arquivo_saida = os.path.join(pasta_destino, nome_arquivo)
 
         if isinstance(arquivo_pdf, PdfWriter):
             with open(caminho_arquivo_saida, "wb") as f:
                 arquivo_pdf.write(f)
         else:
+            WorkerThread.currentThread().progressUpdated.emit(50)
             arquivo_pdf.save(caminho_arquivo_saida)
 
         return nome_arquivo

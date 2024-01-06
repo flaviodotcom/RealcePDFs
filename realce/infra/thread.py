@@ -22,6 +22,7 @@ class WorkerThread(QThread):
             self.finished.emit(result)
         except Exception as e:
             self.thread_stopped_bar()
+            self.parent.msg_tooltip(f'Erro: {e}')
             RealceLogger.get_logger().error(f'Tente novamente. Erro: {e}')
             self.finished.emit(e)
 
@@ -30,8 +31,8 @@ class WorkerThread(QThread):
         self.parent.progress_bar.style().polish(self.parent.progress_bar)
         self.parent.progress_bar.setValue(value)
 
-    @staticmethod
-    def handle_thread_finished(button):
+    def handle_thread_finished(self, button):
+        self.parent.msg_tooltip('Operação realizada com sucesso')
         button.setEnabled(True)
 
     def thread_stopped_bar(self):

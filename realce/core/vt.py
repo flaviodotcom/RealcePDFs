@@ -20,9 +20,9 @@ class SepararPDF(BaseRealcePdf):
 
         nome_arquivo = SepararPDF.salvar_arquivo_pdf(nova_pasta_destino, nome_arquivo, pdf)
         pdf_reader = PdfReader(os.path.join(nova_pasta_destino, nome_arquivo))
-        planilha = SepararPDF.separar_pdf_por_matricula(pdf_reader, campo_arquivo_excel, nova_pasta_destino)
+        planilha, pdf_text = SepararPDF.separar_pdf_por_matricula(pdf_reader, campo_arquivo_excel, nova_pasta_destino)
 
-        pdf_mesclado = SepararPDF.mesclar_pdfs(nova_pasta_destino, nome_arquivo, planilha)
+        pdf_mesclado = SepararPDF.mesclar_pdfs(nova_pasta_destino, nome_arquivo, planilha, pdf_text)
         SepararPDF.salvar_arquivo_pdf(nova_pasta_destino, '- PDF_MERGEADO.pdf', pdf_mesclado)
         SepararPDF.exibir_mensagem_conclusao(nova_pasta_destino, matriculas_nao_encontradas)
 
@@ -36,32 +36,35 @@ class SepararPDF(BaseRealcePdf):
 
     @staticmethod
     def separar_pdf_por_matricula(pdf_reader, campo_arquivo_excel, pasta_destino):
+        pdf_text = [pagina.extract_text() for pagina in pdf_reader.pages]
         planilha = load_workbook(campo_arquivo_excel).active
         WorkerThread.currentThread().progressUpdated.emit(50)
 
         for linha in range(1, planilha.max_row + 1):
             numero_matricula = planilha.cell(row=linha, column=2).value
-            nome_func = str(planilha.cell(row=linha, column=3).value)
+            funcionario = str(planilha.cell(row=linha, column=3).value)
             new_pdf = PdfWriter()
 
             if numero_matricula:
                 matricula = str(numero_matricula)
-                for pagina in pdf_reader.pages:
-                    if matricula in pagina.extract_text():
-                        new_pdf.add_page(pagina)
+                matricula_presente = any(matricula in pagina_texto for pagina_texto in pdf_text)
+                if matricula_presente:
+                    for pagina, pagina_texto in zip(pdf_reader.pages, pdf_text):
+                        if matricula in pagina_texto:
+                            new_pdf.add_page(pagina)
 
             SepararPDF.logger.info(f'Iterando... '
-                                   f'Linha {linha}; Número da matrícula {numero_matricula}; Funcionário {nome_func}')
+                                   f'Linha {linha}; Número da matrícula {numero_matricula}; Funcionário {funcionario}')
             if len(new_pdf.pages) > 0:
-                output_file = f"{pasta_destino}/{nome_func.strip()}.pdf"
+                output_file = f"{pasta_destino}/{funcionario.strip()}.pdf"
                 with open(output_file, "wb") as f:
                     SepararPDF.logger.info(f'Salvando arquivo {f.name}')
                     new_pdf.write(f)
 
-        return planilha
+        return planilha, pdf_text
 
     @staticmethod
-    def mesclar_pdfs(pasta_destino, arquivo_destacado, planilha):
+    def mesclar_pdfs(pasta_destino, arquivo_destacado, planilha, pdf_text):
         WorkerThread.currentThread().progressUpdated.emit(75)
         pdf_mergeado = PdfWriter()
         matriculas_adicionadas = set()
@@ -69,13 +72,10 @@ class SepararPDF(BaseRealcePdf):
         with open(os.path.join(pasta_destino, arquivo_destacado), 'rb') as pdf:
             pdf_reader = PdfReader(pdf)
 
-            for numero_pagina in range(len(pdf_reader.pages)):
-                texto_pagina = re.sub(r'(_)(?=\d)', r'\1 ', pdf_reader.pages[numero_pagina].extract_text())
-
-                procura_matriculas_excel = [str(planilha.cell(row=i, column=2).value) for i in
-                                            range(1, planilha.max_row + 1)]
-
-                matriculas_encontradas = set(procura_matriculas_excel) & set(texto_pagina.split())
+            for numero_pagina, texto_pagina in enumerate(pdf_text):
+                texto_pagina = re.sub(r'(_)(?=\d)', r'\1 ', texto_pagina)
+                matriculas_excel = {str(planilha.cell(row=i, column=2).value) for i in range(1, planilha.max_row + 1)}
+                matriculas_encontradas = matriculas_excel.intersection(set(texto_pagina.split()))
 
                 SepararPDF.logger.info(
                     f'Juntando pdfs... Matrículas encontradas na página {numero_pagina + 1}:'

@@ -1,10 +1,10 @@
 import sys
 import logging
 
-from PySide6.QtCore import Slot, Qt, QSize
+from PySide6.QtCore import Slot, Qt, QSize, QPoint
 from PySide6.QtGui import QAction, QActionGroup, QIcon
 from PySide6.QtWidgets import QMainWindow, QApplication, QWidget, QVBoxLayout, QMenu, QHBoxLayout, QFormLayout, \
-    QGroupBox, QPushButton, QLineEdit, QStatusBar, QProgressBar
+    QGroupBox, QPushButton, QLineEdit, QStatusBar, QProgressBar, QToolTip
 from qdarktheme import setup_theme
 
 from realce.app.info import Tutorial
@@ -63,7 +63,7 @@ class MainHome(QMainWindow):
     def toggle_theme(theme) -> None:
         setup_theme(theme)
         if theme == 'dark':
-            setup_theme(custom_colors={"primary": "#D0BCFF"}) if theme == 'dark' else None
+            setup_theme(custom_colors={"primary": "#D0BCFF"}, additional_qss=MainHome.qss_tooltip())
 
     def build_menu_bar(self):
         menu_bar = self.menuBar()
@@ -187,6 +187,20 @@ class MainHome(QMainWindow):
         encontrar_pdf.clicked.connect(lambda: selecionar_arquivo_pdf(self.pdf_file))
 
         return salvar, salvar_como, encontrar_excel, encontrar_pdf
+
+    def msg_tooltip(self, text):
+        tooltip = QToolTip()
+        tooltip.showText(self.mapToGlobal(QPoint(200, 150)), text)
+
+    @staticmethod
+    def qss_tooltip():
+        return """
+        QToolTip {
+                border-width: 1px;
+                border-style: hidden;
+                background-color: #292929;
+            }
+            """
 
     def abrir_info(self):
         if not (self.tutorial and self.tutorial.is_visible()):
