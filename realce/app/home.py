@@ -1,5 +1,8 @@
-import sys
 import logging
+import os
+import sys
+import webbrowser
+from datetime import datetime
 
 from PySide6.QtCore import Slot, Qt, QSize, QPoint
 from PySide6.QtGui import QAction, QActionGroup, QIcon
@@ -40,6 +43,7 @@ class MainHome(QMainWindow):
         self.setFixedSize(QSize(620, 280))
 
         self.logger = RealceLogger.get_logger()
+        self.console_output = RealceLogger.console_output
         self.build_menu_bar()
         self.build_layout()
         atalhos(self)
@@ -75,6 +79,11 @@ class MainHome(QMainWindow):
 
         menu_theme = menu_bar.addMenu('&Tema')
         menu_theme.addMenu(self.init_theme_menu())
+
+        menu_log = menu_bar.addMenu('&Log')
+        q_action = QAction(QIcon(), 'Gerar Log', self)
+        q_action.triggered.connect(self.txt_log)
+        menu_log.addAction(q_action)
 
     def build_layout(self):
         widget = QWidget(self)
@@ -206,6 +215,20 @@ class MainHome(QMainWindow):
         if not (self.tutorial and self.tutorial.is_visible()):
             self.tutorial = Tutorial()
             self.tutorial.show()
+
+    def txt_log(self):
+        log_dir = resource_path('resources/logs')
+
+        if not os.path.exists(log_dir):
+            os.makedirs(log_dir)
+
+        date = datetime.today().strftime(f"%d-%m-%Y_%Hh%M")
+        log = resource_path(os.path.join(log_dir, f'log-{date}.txt'))
+
+        with open(log, 'w') as log_file:
+            log_file.write(self.console_output.getvalue())
+            self.logger.info(f"Arquivo salvo em {os.path.realpath(log_file.name)}")
+            webbrowser.open(log_dir)
 
     def get_field_text(self):
         return self.excel_file.text(), self.pdf_file.text()

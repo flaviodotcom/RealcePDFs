@@ -6,6 +6,7 @@ dist/
 *.spec
 .env
 .venv
+log*
 env/
 venv/
 .idea/
