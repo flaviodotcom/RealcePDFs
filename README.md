@@ -2,23 +2,20 @@
   <img height="150" src="resources/images/vigarista.ico">
 </p>
 
-<h1 align="center">Destacar PDFs por Matrícula</h1>
+<h1 align="center">RealcePDFs</h1>
 <br>
 Este é um programa executável que permite destacar matrículas de funcionários em um arquivo PDF com base em informações de uma planilha do Excel. Ele é especialmente útil para realçar benefícios como Seguro de Vida, Plano Odontológico, Vale Transporte, Vale Alimentação e Vale Refeição em documentos PDF. Suas vantagens são a velocidade de processamento e interface amigável.
 
 ## Executável
 
-O projeto disponibiliza um arquivo executável, viabilizando a utilização do programa em computadores sem o
-interpretador Python instalado. Se você fez adaptações no código e deseja criar um executável a partir dele, basta
-executar o script [`build.py`][build.py].
+O projeto disponibiliza um arquivo executável, possibilitando a utilização do programa em computadores sem o
+interpretador Python instalado.
 
 **Download**:
 
 - [`RealcePDFs.exe`][latest-release] (64-bit)
 
-[latest-release]: https://github.com/flaviodotcom/RealcePDFs/tree/main/exe
-
-[build.py]: https://github.com/flaviodotcom/RealcePDFs/blob/main/build.py
+[latest-release]: https://github.com/flaviodotcom/RealcePDFs/raw/main/exe/RealcePDFs.exe
 
 ## Como Usar
 
@@ -55,6 +52,21 @@ Cria um arquivo de texto com as matrículas não encontradas.
 Salva o PDF editado na Área de Trabalho (Desktop) em uma pasta chamada "BENEFÍCIOS DESTACADOS".
 Oferece a opção de salvar o PDF em um local personalizado.
 Permite separar o PDF em arquivos individuais para cada matrícula encontrada.
+
+## Arquivos de teste
+
+Teste o programa com os arquivos disponíveis em [`tests/files`][test-files].
+
+**Download**:
+
+- [`test_arquivo_excel`][test-excel]
+- [`test_arquivo_pdf`][test-pdf]
+
+[test-files]: https://github.com/flaviodotcom/RealcePDFs/tree/main/tests/files
+
+[test-pdf]: https://github.com/flaviodotcom/RealcePDFs/raw/main/tests/files/test_arquivo_pdf.pdf
+
+[test-excel]: https://github.com/flaviodotcom/RealcePDFs/raw/main/tests/files/test_arquivo_excel.xlsx
 
 ## Requerimentos
 
@@ -95,7 +107,18 @@ pip install pytest
 python -m pytest
 ```
 
-### Tags de Commits
+## Atualização do Executável
+
+Se você realizou modificações no código e deseja gerar um executável com base na sua versão, execute o
+script presente em [`build.py`][build.py].
+
+```bash
+python build.py
+```
+
+[build.py]: https://github.com/flaviodotcom/RealcePDFs/blob/main/build.py
+
+## Tags de Commits
 
 As seguintes tags são usadas como padrão de projeto no prefixo dos commits:
 

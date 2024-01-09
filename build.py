@@ -3,7 +3,7 @@ import PyInstaller.__main__
 export_mode = '--onefile'
 
 argumentos = [
-    '--name=Destacar PDFs',
+    '--name=RealcePDFs',
     '--windowed',
     '--noconfirm',
     '--clean',
