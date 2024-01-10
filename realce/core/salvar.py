@@ -8,42 +8,45 @@ from realce.infra.thread import WorkerThread
 
 
 def salvar_para_pasta_padrao(campo_arquivo_excel, campo_arquivo_pdf, parent=None):
-    if campos_sao_validos(campo_arquivo_excel, campo_arquivo_pdf):
-        pasta_destino = os.path.join(os.path.expanduser("~"), "Desktop", "BENEFICIOS DESTACADOS")
-        os.makedirs(pasta_destino, exist_ok=True)
-
-        thread_padrao = WorkerThread(RealceMatriculas.pdf, campo_arquivo_excel, campo_arquivo_pdf, pasta_destino,
-                                     parent=parent)
-        parent.salvar.setEnabled(False)
-        parent.cancelar_button.clicked.connect(lambda: thread_padrao.stop_execution(parent.salvar))
-        thread_padrao.finished.connect(lambda: thread_padrao.handle_thread_finished(parent.salvar))
-        thread_padrao.progressUpdated.connect(thread_padrao.update_progress_bar)
-        thread_padrao.start()
+    ThreadManager(parent, RealceMatriculas.pdf, campo_arquivo_excel, campo_arquivo_pdf, parent.salvar_como, True)
 
 
 def salvar_para_pasta_selecionada(campo_arquivo_excel, campo_arquivo_pdf, parent=None):
-    if campos_sao_validos(campo_arquivo_excel, campo_arquivo_pdf):
-        pasta_destino = filedialog.askdirectory()
-
-        if pasta_destino:
-            thread_selecionada = WorkerThread(RealceMatriculas.pdf, campo_arquivo_excel, campo_arquivo_pdf,
-                                              pasta_destino, parent=parent)
-            parent.salvar_como.setEnabled(False)
-            parent.cancelar_button.clicked.connect(lambda: thread_selecionada.stop_execution(parent.salvar_como))
-            thread_selecionada.finished.connect(lambda: thread_selecionada.handle_thread_finished(parent.salvar_como))
-            thread_selecionada.progressUpdated.connect(thread_selecionada.update_progress_bar)
-            thread_selecionada.start()
+    ThreadManager(parent, RealceMatriculas.pdf, campo_arquivo_excel, campo_arquivo_pdf, parent.salvar_como)
 
 
 def salvar_para_pasta_do_vt(campo_arquivo_excel, campo_arquivo_pdf, parent=None):
-    if campos_sao_validos(campo_arquivo_excel, campo_arquivo_pdf):
-        pasta_destino = filedialog.askdirectory()
+    ThreadManager(parent, SepararPDF.separar_vt, campo_arquivo_excel, campo_arquivo_pdf, parent.separar_vts_button)
 
-        if pasta_destino:
-            thread_vt = WorkerThread(SepararPDF.separar_vt, campo_arquivo_excel, campo_arquivo_pdf, pasta_destino,
-                                     parent=parent)
-            parent.separar_vts_button.setEnabled(False)
-            parent.cancelar_button.clicked.connect(lambda: thread_vt.stop_execution(parent.separar_vts_button))
-            thread_vt.finished.connect(lambda: thread_vt.handle_thread_finished(parent.separar_vts_button))
-            thread_vt.progressUpdated.connect(thread_vt.update_progress_bar)
-            thread_vt.start()
+
+class ThreadManager:
+    def __init__(self, parent, function, campo_arquivo_excel, campo_arquivo_pdf, button, default=None):
+        self.parent = parent
+        self.function = function
+        self.campo_arquivo_excel = campo_arquivo_excel
+        self.campo_arquivo_pdf = campo_arquivo_pdf
+        self.button = button
+        self.default = default
+        self.configurar_thread()
+
+    def configurar_thread(self):
+        if campos_sao_validos(self.campo_arquivo_excel, self.campo_arquivo_pdf):
+            pasta_destino = self.obter_pasta_destino()
+            if pasta_destino:
+                thread = WorkerThread(self.function, self.campo_arquivo_excel, self.campo_arquivo_pdf, pasta_destino,
+                                      parent=self.parent)
+                self.configurar_botao(thread)
+                thread.start()
+
+    def configurar_botao(self, thread):
+        self.button.setEnabled(False)
+        self.parent.cancelar_button.clicked.connect(lambda: thread.stop_execution(self.button))
+        thread.finished.connect(lambda: thread.handle_thread_finished(self.button))
+        thread.progressUpdated.connect(thread.update_progress_bar)
+
+    def obter_pasta_destino(self):
+        if self.default:
+            pasta_destino = os.path.join(os.path.expanduser("~"), "Desktop", "BENEFICIOS DESTACADOS")
+            os.makedirs(pasta_destino, exist_ok=True)
+            return pasta_destino
+        return filedialog.askdirectory()
