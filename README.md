@@ -80,7 +80,7 @@ abaixo:
 ```bash
 pip install virtualenv
 python3.11 -m venv <virtual-environment-name>
-source env/bin/activate
+source <virtual-environment-name>/bin/activate
 ```
 
 ### Instalação de Dependências
